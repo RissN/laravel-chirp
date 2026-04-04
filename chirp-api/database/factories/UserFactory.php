@@ -1,0 +1,32 @@
+<?php
+
+namespace Database\Factories;
+
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+
+class UserFactory extends Factory
+{
+    protected static ?string $password;
+
+    public function definition(): array
+    {
+        return [
+            'name' => fake()->name(),
+            'username' => fake()->unique()->userName(),
+            'email' => fake()->unique()->safeEmail(),
+            'email_verified_at' => now(),
+            'password' => static::$password ??= Hash::make('password'),
+            'bio' => fake()->sentence(8),
+            'avatar' => 'https://ui-avatars.com/api/?name=' . urlencode(fake()->name()),
+            'header_image' => 'https://picsum.photos/seed/' . fake()->uuid() . '/600/200',
+            'location' => fake()->city() . ', ' . fake()->countryCode(),
+            'website' => fake()->url(),
+            'birth_date' => fake()->dateTimeBetween('-40 years', '-18 years')->format('Y-m-d'),
+            'is_verified' => fake()->boolean(20),
+            'is_private' => fake()->boolean(5),
+            'remember_token' => Str::random(10),
+        ];
+    }
+}
