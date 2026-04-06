@@ -6,6 +6,7 @@ import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import { register } from '../../api/auth';
 import { useAuthStore } from '../../store/authStore';
+import { useToast } from '../../components/ui/ToastProvider';
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -20,17 +21,40 @@ export default function Register() {
   
   const navigate = useNavigate();
   const { setToken, setUser } = useAuthStore();
+  const { showToast } = useToast();
+
+  const validate = () => {
+    const fieldErrors: any = {};
+    if (!formData.name.trim()) fieldErrors.name = ['Name is required'];
+    if (!formData.username.trim()) fieldErrors.username = ['Username is required'];
+    if (!formData.email.trim()) fieldErrors.email = ['Email is required'];
+    else if (!/\S+@\S+\.\S+/.test(formData.email)) fieldErrors.email = ['Email is invalid'];
+    
+    if (!formData.password) fieldErrors.password = ['Password is required'];
+    else if (formData.password.length < 8) fieldErrors.password = ['Password must be at least 8 characters'];
+    
+    if (formData.password !== formData.password_confirmation) {
+      fieldErrors.password_confirmation = ['Passwords do not match'];
+    }
+
+    setErrors(fieldErrors);
+    return Object.keys(fieldErrors).length === 0;
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     // clear error for specific field when typing
     if (errors[e.target.name]) {
-      setErrors({ ...errors, [e.target.name]: undefined });
+      const newErrors = { ...errors };
+      delete newErrors[e.target.name];
+      setErrors(newErrors);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validate()) return;
+    
     setIsLoading(true);
     setErrors({});
 
@@ -44,7 +68,9 @@ export default function Register() {
       if (err.response?.data?.errors) {
         setErrors(err.response.data.errors);
       } else {
-        setErrors({ general: 'Registration failed. Please try again.' });
+        const msg = 'Registration failed. Please try again.';
+        setErrors({ general: msg });
+        showToast(msg, 'error');
       }
     } finally {
       setIsLoading(false);
@@ -71,14 +97,13 @@ export default function Register() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} noValidate className="space-y-4">
           <Input 
             label="Name"
             name="name"
             value={formData.name}
             onChange={handleChange}
             error={errors.name?.[0]}
-            required
           />
           <Input 
             label="Username"
@@ -86,7 +111,6 @@ export default function Register() {
             value={formData.username}
             onChange={handleChange}
             error={errors.username?.[0]}
-            required
           />
           <Input 
             label="Email"
@@ -95,7 +119,6 @@ export default function Register() {
             value={formData.email}
             onChange={handleChange}
             error={errors.email?.[0]}
-            required
           />
           <Input 
             label="Password"
@@ -104,7 +127,6 @@ export default function Register() {
             value={formData.password}
             onChange={handleChange}
             error={errors.password?.[0]}
-            required
           />
           <Input 
             label="Confirm Password"
@@ -112,7 +134,7 @@ export default function Register() {
             type="password"
             value={formData.password_confirmation}
             onChange={handleChange}
-            required
+            error={errors.password_confirmation?.[0]}
           />
           
           <div className="flex justify-center pt-4">

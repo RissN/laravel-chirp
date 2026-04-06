@@ -8,6 +8,8 @@ import Avatar from '../ui/Avatar';
 import type { Tweet } from '../../types';
 import { toggleLike, toggleRetweet, toggleBookmark, deleteTweet } from '../../api/tweets';
 import { useAuthStore } from '../../store/authStore';
+import { useModal } from '../ui/ModalProvider';
+import { useToast } from '../ui/ToastProvider';
 
 export default function TweetCard({ tweet }: { tweet: Tweet }) {
   const navigate = useNavigate();
@@ -21,6 +23,8 @@ export default function TweetCard({ tweet }: { tweet: Tweet }) {
   const [optimisticBookmark, setOptimisticBookmark] = useState(tweet.is_bookmarked);
   const { user: currentUser } = useAuthStore();
   const queryClient = useQueryClient();
+  const { confirm } = useModal();
+  const { showToast } = useToast();
 
   const isOwner = currentUser?.id === tweet.user.id;
 
@@ -35,12 +39,26 @@ export default function TweetCard({ tweet }: { tweet: Tweet }) {
       if (window.location.pathname.includes('/tweet/')) {
         navigate('/home');
       }
+
+      showToast('Tweet deleted successfully', 'success');
+    },
+    onError: () => {
+      showToast('Failed to delete tweet', 'error');
     }
   });
 
-  const handleDelete = (e: React.MouseEvent) => {
+  const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (window.confirm('Are you sure you want to delete this tweet?')) {
+    
+    const isConfirmed = await confirm({
+      title: 'Delete Tweet?',
+      message: 'This cannot be undone and it will be removed from your profile, the timeline of any accounts that follow you, and from Chirp search results.',
+      confirmLabel: 'Delete',
+      cancelLabel: 'Cancel',
+      variant: 'danger'
+    });
+
+    if (isConfirmed) {
       deleteMutation.mutate();
     }
   };
@@ -103,42 +121,46 @@ export default function TweetCard({ tweet }: { tweet: Tweet }) {
   return (
     <article 
       onClick={handleNavigate}
-      className="border-b border-[var(--border-color)] p-4 hover:bg-[var(--hover-bg)] transition cursor-pointer"
+      className="border-b border-[var(--border-color)]/30 p-4 hover:bg-[var(--hover-bg)]/30 transition-all duration-300 cursor-pointer group/tweet relative"
     >
       {/* Retweet Indicator */}
       {isRetweet && repUser && (
-        <div className="flex items-center gap-2 mb-1 ml-6 text-sm text-[var(--text-muted)] font-bold">
-          <Repeat2 size={16} />
+        <div className="flex items-center gap-2 mb-2 ml-9 text-[13px] text-[var(--text-muted)] font-bold">
+          <Repeat2 size={16} strokeWidth={3} />
           <Link to={`/${repUser.username}`} className="hover:underline" onClick={(e) => e.stopPropagation()}>
             {repUser.name} reposted
           </Link>
         </div>
       )}
 
-      <div className="flex gap-3">
-        <Avatar 
-          name={displayTweet.user.name} 
-          src={displayTweet.user.avatar} 
-          username={displayTweet.user.username} 
-        />
+      <div className="flex gap-4">
+        <div className="flex flex-col items-center">
+          <Avatar 
+            name={displayTweet.user.name} 
+            src={displayTweet.user.avatar} 
+            username={displayTweet.user.username} 
+          />
+        </div>
         
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 min-w-0">
           {/* User Info Header */}
-          <div className="flex items-center gap-1 text-sm sm:text-base whitespace-nowrap overflow-hidden">
-            <Link 
-              to={`/${displayTweet.user.username}`} 
-              onClick={(e) => e.stopPropagation()}
-              className="font-bold text-[var(--text-color)] hover:underline truncate"
-            >
-              {displayTweet.user.name}
-            </Link>
-            <span className="text-[var(--text-muted)] truncate">@{displayTweet.user.username}</span>
-            <span className="text-[var(--text-muted)]">· {timeAgo}</span>
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <Link 
+                to={`/${displayTweet.user.username}`} 
+                onClick={(e) => e.stopPropagation()}
+                className="font-extrabold text-[var(--text-color)] hover:underline truncate text-[15px]"
+              >
+                {displayTweet.user.name}
+              </Link>
+              <span className="text-[var(--text-muted)] truncate text-[14px]">@{displayTweet.user.username}</span>
+              <span className="text-[var(--text-muted)] text-[14px]">· {timeAgo}</span>
+            </div>
             
             {isOwner && (
               <button 
                 onClick={handleDelete}
-                className="ml-auto p-2 text-[var(--text-muted)] hover:text-red-500 hover:bg-red-500/10 rounded-full transition"
+                className="p-2 -mr-2 text-[var(--text-muted)] hover:text-red-500 hover:bg-red-500/10 rounded-full transition-colors"
                 title="Delete tweet"
                 disabled={deleteMutation.isPending}
               >
@@ -147,24 +169,22 @@ export default function TweetCard({ tweet }: { tweet: Tweet }) {
             )}
           </div>
 
-          <p className="text-[var(--text-color)] mt-1 whitespace-pre-wrap word-break">
+          <p className="text-[var(--text-color)] mt-0.5 text-[15px] leading-relaxed whitespace-pre-wrap word-break">
             {displayTweet.content}
           </p>
 
           {/* Media Grid */}
           {displayTweet.media && displayTweet.media.length > 0 && (
-            <div className={`mt-3 grid gap-1 rounded-2xl overflow-hidden border border-[var(--border-color)] ${
-              displayTweet.media.length === 1 ? 'grid-cols-1' :
-              displayTweet.media.length === 2 ? 'grid-cols-2' :
-              displayTweet.media.length === 3 ? 'grid-cols-2' : 'grid-cols-2'
+            <div className={`mt-3 grid gap-2 rounded-2xl overflow-hidden border border-[var(--border-color)]/50 ${
+              displayTweet.media.length === 1 ? 'grid-cols-1' : 'grid-cols-2'
             }`}>
               {displayTweet.media.map((url, i) => (
                 <img 
                   key={i} 
                   src={url} 
                   alt="Tweet media" 
-                  className={`w-full object-cover ${
-                    displayTweet.media?.length === 3 && i === 0 ? 'row-span-2 h-full' : 'h-64'
+                  className={`w-full object-cover hover:opacity-95 transition-opacity cursor-zoom-in ${
+                    displayTweet.media?.length === 3 && i === 0 ? 'row-span-2 h-full' : 'h-64 sm:h-72'
                   }`}
                   onClick={(e) => e.stopPropagation()} 
                 />
@@ -173,50 +193,50 @@ export default function TweetCard({ tweet }: { tweet: Tweet }) {
           )}
 
           {/* Action Buttons */}
-          <div className="flex justify-between mt-3 max-w-md text-[var(--text-muted)]">
+          <div className="flex justify-between mt-3 -ml-2 max-w-md text-[var(--text-muted)]">
             <button 
-              className="flex items-center gap-1.5 group hover:text-[var(--color-chirp)] transition"
+              className="flex items-center gap-1 group/btn transition-colors hover:text-[var(--color-chirp)]"
               onClick={(e) => { e.stopPropagation(); navigate(`/tweet/${displayTweet.id}`) }}
             >
-              <div className="p-2 rounded-full group-hover:bg-[var(--color-chirp)]/10 transition">
+              <div className="p-2 rounded-full group-hover/btn:bg-[var(--color-chirp)]/10 transition-colors">
                 <MessageCircle size={18} />
               </div>
-              <span className="text-sm">{displayTweet.replies_count > 0 ? displayTweet.replies_count : ''}</span>
+              <span className="text-xs font-medium">{displayTweet.replies_count > 0 ? displayTweet.replies_count : ''}</span>
             </button>
 
             <button 
-              className={`flex items-center gap-1.5 group transition ${optimisticRetweet ? 'text-green-500' : 'hover:text-green-500'}`}
+              className={`flex items-center gap-1 group/btn transition-colors ${optimisticRetweet ? 'text-green-500' : 'hover:text-green-500'}`}
               onClick={handleRetweet}
             >
-              <div className="p-2 rounded-full group-hover:bg-green-500/10 transition">
+              <div className="p-2 rounded-full group-hover/btn:bg-green-500/10 transition-colors">
                 <Repeat2 size={18} />
               </div>
-              <span className="text-sm">{retweetsCount > 0 ? retweetsCount : ''}</span>
+              <span className="text-xs font-medium">{retweetsCount > 0 ? retweetsCount : ''}</span>
             </button>
 
             <button 
-              className={`flex items-center gap-1.5 group transition ${optimisticLike ? 'text-pink-600' : 'hover:text-pink-600'}`}
+              className={`flex items-center gap-1 group/btn transition-colors ${optimisticLike ? 'text-pink-600' : 'hover:text-pink-600'}`}
               onClick={handleLike}
             >
-              <div className="p-2 rounded-full group-hover:bg-pink-600/10 transition">
-                <motion.div animate={optimisticLike ? { scale: [1, 1.5, 1] } : {}} transition={{ duration: 0.3 }}>
-                  <Heart size={18} fill={optimisticLike ? "currentColor" : "none"} />
+              <div className="p-2 rounded-full group-hover/btn:bg-pink-600/10 transition-colors">
+                <motion.div animate={optimisticLike ? { scale: [1, 1.4, 1] } : {}} transition={{ duration: 0.3 }}>
+                  <Heart size={18} fill={optimisticLike ? "currentColor" : "none"} strokeWidth={optimisticLike ? 0 : 2} />
                 </motion.div>
               </div>
-              <span className="text-sm">{likesCount > 0 ? likesCount : ''}</span>
+              <span className="text-xs font-medium">{likesCount > 0 ? likesCount : ''}</span>
             </button>
 
             <button 
-              className={`flex items-center group transition ${optimisticBookmark ? 'text-[var(--color-chirp)]' : 'hover:text-[var(--color-chirp)]'}`}
+              className={`flex items-center group/btn transition-colors ${optimisticBookmark ? 'text-[var(--color-chirp)]' : 'hover:text-[var(--color-chirp)]'}`}
               onClick={handleBookmark}
             >
-              <div className="p-2 rounded-full group-hover:bg-[var(--color-chirp)]/10 transition">
-                <Bookmark size={18} fill={optimisticBookmark ? "currentColor" : "none"} />
+              <div className="p-2 rounded-full group-hover/btn:bg-[var(--color-chirp)]/10 transition-colors">
+                <Bookmark size={18} fill={optimisticBookmark ? "currentColor" : "none"} strokeWidth={optimisticBookmark ? 0 : 2} />
               </div>
             </button>
 
-            <button className="flex items-center group hover:text-[var(--color-chirp)] transition" onClick={(e) => e.stopPropagation()}>
-              <div className="p-2 rounded-full group-hover:bg-[var(--color-chirp)]/10 transition">
+            <button className="flex items-center group/btn hover:text-[var(--color-chirp)] transition-colors" onClick={(e) => e.stopPropagation()}>
+              <div className="p-2 rounded-full group-hover/btn:bg-[var(--color-chirp)]/10 transition-colors">
                 <Share size={18} />
               </div>
             </button>

@@ -25,3 +25,8 @@ export const updateProfile = async (profileData: any): Promise<ApiResponse<User>
   const { data } = await api.put('/users/profile', profileData);
   return data;
 };
+
+export const getSuggestedUsers = async (): Promise<ApiResponse<User[]>> => {
+  const { data } = await api.get('/users/suggestions');
+  return data;
+};

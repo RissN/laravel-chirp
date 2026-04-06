@@ -15,10 +15,16 @@ class ConversationResource extends JsonResource
             ? $this->userTwo 
             : $this->userOne;
 
+        $unreadCount = \App\Models\Message::where('receiver_id', $user->id)
+            ->where('sender_id', $otherUser->id)
+            ->whereNull('read_at')
+            ->count();
+
         return [
             'id' => $this->id,
             'other_user' => new UserResource($otherUser),
             'last_message' => new MessageResource($this->whenLoaded('lastMessage')),
+            'unread_count' => $unreadCount,
             'updated_at' => $this->updated_at->toISOString(),
         ];
     }

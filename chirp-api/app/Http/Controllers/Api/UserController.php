@@ -80,4 +80,28 @@ class UserController extends Controller
             'success' => true
         ]);
     }
+
+    public function suggestions(Request $request)
+    {
+        $user = $request->user();
+        
+        // Get IDs of users the current user is already following
+        $followingIds = $user->following()
+            ->wherePivot('status', 'accepted')
+            ->pluck('users.id')
+            ->toArray();
+        
+        // Add self to exclusion list
+        $excludeIds = array_merge($followingIds, [$user->id]);
+        
+        $suggestions = User::whereNotIn('id', $excludeIds)
+            ->inRandomOrder()
+            ->take(5)
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => UserResource::collection($suggestions)
+        ]);
+    }
 }

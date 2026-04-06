@@ -6,19 +6,34 @@ import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import { login } from '../../api/auth';
 import { useAuthStore } from '../../store/authStore';
+import { useToast } from '../../components/ui/ToastProvider';
 
 export default function Login() {
   const [emailOrUsername, setEmailOrUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
+  
   const navigate = useNavigate();
   const { setToken, setUser } = useAuthStore();
+  const { showToast } = useToast();
+
+  const validate = () => {
+    const errors: { [key: string]: string } = {};
+    if (!emailOrUsername.trim()) errors.emailOrUsername = 'Email or username is required';
+    if (!password) errors.password = 'Password is required';
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validate()) return;
+    
     setIsLoading(true);
     setError('');
+    setFieldErrors({});
 
     try {
       const isEmail = emailOrUsername.includes('@');
@@ -32,7 +47,9 @@ export default function Login() {
       setUser(res.data.user);
       navigate('/home');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
+      const msg = err.response?.data?.message || 'Login failed. Please check your credentials.';
+      setError(msg);
+      showToast(msg, 'error');
     } finally {
       setIsLoading(false);
     }
@@ -58,19 +75,25 @@ export default function Login() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} noValidate className="space-y-6">
           <Input 
             label="Email or Username"
             value={emailOrUsername}
-            onChange={(e) => setEmailOrUsername(e.target.value)}
-            required
+            onChange={(e) => {
+              setEmailOrUsername(e.target.value);
+              if (fieldErrors.emailOrUsername) setFieldErrors({ ...fieldErrors, emailOrUsername: '' });
+            }}
+            error={fieldErrors.emailOrUsername}
           />
           <Input 
             label="Password"
             type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
+            onChange={(e) => {
+              setPassword(e.target.value);
+              if (fieldErrors.password) setFieldErrors({ ...fieldErrors, password: '' });
+            }}
+            error={fieldErrors.password}
           />
           
           <div className="flex justify-center pt-2">

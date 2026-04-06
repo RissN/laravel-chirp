@@ -35,12 +35,12 @@ export default function Home() {
 
   return (
     <div 
-      className="h-screen overflow-y-auto hide-scrollbar" 
+      className="h-screen overflow-y-auto hide-scrollbar animate-fade-in" 
       onScroll={handleScroll}
     >
       {/* Header Sticky */}
-      <div className="sticky top-0 z-10 bg-[var(--bg-color)]/80 backdrop-blur-md border-b border-[var(--border-color)]">
-        <h1 className="text-xl font-bold p-4 text-[var(--text-color)] cursor-pointer">
+      <div className="sticky-header">
+        <h1 className="h-lg p-4 text-[var(--text-color)] cursor-pointer tracking-tight">
           Home
         </h1>
       </div>

@@ -1,78 +1,124 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Search, Bell, Mail, Bookmark, User, LogOut, Feather, Moon, Sun } from 'lucide-react';
+import { Home, Search, Bell, Mail, Bookmark, User, LogOut, Feather, Moon, Sun, Plus } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
+import { useNotificationStore } from '../../store/notificationStore';
 
 export default function Sidebar() {
   const { user, logout } = useAuthStore();
   const { isDark, toggleTheme } = useThemeStore();
+  const { unreadCount } = useNotificationStore();
   const location = useLocation();
 
   const navLinks = [
     { name: 'Home', path: '/home', icon: Home },
     { name: 'Explore', path: '/explore', icon: Search },
-    { name: 'Notifications', path: '/notifications', icon: Bell },
+    { name: 'Notifications', path: '/notifications', icon: Bell, badge: unreadCount },
     { name: 'Messages', path: '/messages', icon: Mail },
     { name: 'Bookmarks', path: '/bookmarks', icon: Bookmark },
     { name: 'Profile', path: `/${user?.username}`, icon: User },
   ];
 
   return (
-    <>
-      <div className="flex w-full items-center justify-center xl:justify-start py-2">
-        <Link to="/home" className="p-3 text-[var(--color-chirp)] hover:bg-[var(--hover-bg)] rounded-full transition">
-          <Feather size={32} fill="currentColor" />
+    <div className="flex flex-col h-full">
+      {/* Logo */}
+      <div className="flex items-center justify-center xl:justify-start px-2 mb-2">
+        <Link 
+          to="/home" 
+          className="p-3 rounded-2xl hover:bg-[var(--hover-bg)] transition-all duration-300 group"
+        >
+          <Feather 
+            size={28} 
+            className="text-[var(--color-chirp)] transition-transform duration-300 group-hover:scale-110 group-hover:rotate-[-8deg]" 
+            fill="currentColor" 
+          />
         </Link>
       </div>
-      
-      <nav className="mt-2 space-y-2 flex-1 w-full">
-        {navLinks.map((link) => {
-          const isActive = location.pathname.startsWith(link.path);
+
+      {/* Navigation */}
+      <nav className="flex-1 space-y-0.5 px-1 mt-1">
+        {navLinks.map((link, index) => {
+          const isActive = location.pathname === link.path || 
+            (link.path !== '/home' && location.pathname.startsWith(link.path));
           const Icon = link.icon;
           return (
-            <Link 
-              key={link.name} 
+            <Link
+              key={link.name}
               to={link.path}
-              className="flex items-center justify-center xl:justify-start gap-4 p-3 hover:bg-[var(--hover-bg)] rounded-full transition w-max mx-auto xl:mx-0 group"
+              className={`
+                flex items-center justify-center xl:justify-start gap-4 px-4 py-3 rounded-2xl
+                transition-all duration-200 group relative
+                ${isActive 
+                  ? 'text-[var(--text-color)] font-bold bg-[var(--hover-bg)]/40 after:absolute after:left-1 after:top-1/2 after:-translate-y-1/2 after:w-1 after:h-1/2 after:bg-[var(--color-chirp)] after:rounded-full' 
+                  : 'text-[var(--text-color)] hover:bg-[var(--hover-bg)]'
+                }
+              `}
+              style={{ animationDelay: `${index * 0.05}s` }}
             >
-              <Icon size={28} className={isActive ? 'font-bold' : ''} />
-              <span className={`hidden xl:block text-xl ${isActive ? 'font-bold' : ''}`}>
+              <div className="relative">
+                <Icon 
+                  size={24} 
+                  className={`transition-transform duration-200 group-hover:scale-110 ${isActive ? 'text-[var(--color-chirp)]' : ''}`}
+                  strokeWidth={isActive ? 2.5 : 2}
+                />
+                {link.badge && link.badge > 0 && (
+                  <span className="notification-badge" />
+                )}
+              </div>
+              <span className={`hidden xl:block text-[15px] ${isActive ? 'text-[var(--text-color)] font-bold' : ''}`}>
                 {link.name}
               </span>
             </Link>
           );
         })}
-        
-        <button 
+
+        {/* Theme Toggle */}
+        <button
           onClick={toggleTheme}
-          className="flex items-center justify-center xl:justify-start gap-4 p-3 hover:bg-[var(--hover-bg)] rounded-full transition w-max mx-auto xl:mx-0 group"
+          className="flex items-center justify-center xl:justify-start gap-4 px-4 py-3 rounded-2xl transition-all duration-200 hover:bg-[var(--hover-bg)] group w-full text-[var(--text-color)]"
         >
-          {isDark ? <Sun size={28} /> : <Moon size={28} />}
-          <span className="hidden xl:block text-xl">
+          <div className="transition-transform duration-500 group-hover:rotate-180">
+            {isDark ? <Sun size={24} /> : <Moon size={24} />}
+          </div>
+          <span className="hidden xl:block text-[15px]">
             {isDark ? 'Light Mode' : 'Dark Mode'}
           </span>
         </button>
-
-        <button className="bg-[var(--color-chirp)] text-white font-bold w-12 h-12 rounded-full xl:w-full xl:h-14 mt-4 hover:bg-[var(--color-chirp-hover)] transition flex items-center justify-center shadow-md">
-          <span className="hidden xl:block text-lg">Post</span>
-          <span className="xl:hidden">+</span>
-        </button>
       </nav>
 
+      {/* Post Button */}
+      <div className="px-1 mt-4 mb-6">
+        <button className="btn-gradient w-12 h-12 xl:w-full xl:h-12 flex items-center justify-center shadow-lg active:scale-95">
+          <span className="hidden xl:block text-[15px] font-bold tracking-wide">Post</span>
+          <Plus size={24} className="xl:hidden" strokeWidth={3} />
+        </button>
+      </div>
+
+      {/* User Bottom Card */}
       {user && (
-        <div className="mt-auto flex items-center justify-center xl:justify-between p-3 hover:bg-[var(--hover-bg)] rounded-full cursor-pointer transition w-full">
-          <div className="flex items-center gap-3">
-            <img src={user.avatar || `https://ui-avatars.com/api/?name=${user.name}`} alt={user.name} className="w-10 h-10 rounded-full" />
-            <div className="hidden xl:block overflow-hidden">
-              <p className="font-bold truncate">{user.name}</p>
-              <p className="text-[var(--text-muted)] truncate">@{user.username}</p>
+        <div className="px-1 pb-4">
+          <div className="flex items-center justify-center xl:justify-between p-2 rounded-2xl bg-[var(--hover-bg)]/20 hover:bg-[var(--hover-bg)]/40 border border-[var(--border-color)]/5 transition-all duration-300 cursor-pointer group">
+            <div className="flex items-center gap-3 overflow-hidden">
+              <img 
+                src={user.avatar || `https://ui-avatars.com/api/?name=${user.name}&background=random`} 
+                alt={user.name} 
+                className="w-10 h-10 rounded-full object-cover ring-2 ring-[var(--color-chirp)]/20 group-hover:ring-[var(--color-chirp)]/50 transition-all"
+              />
+              <div className="hidden xl:block overflow-hidden">
+                <p className="font-bold text-sm truncate text-[var(--text-color)]">{user.name}</p>
+                <p className="text-xs text-[var(--text-muted)] truncate font-medium">@{user.username}</p>
+              </div>
             </div>
+            <button 
+              onClick={(e) => { e.preventDefault(); logout(); }} 
+              className="hidden xl:flex p-2 text-[var(--text-muted)] hover:text-red-500 hover:bg-red-500/10 rounded-full transition-all duration-200"
+              title="Log out"
+            >
+              <LogOut size={18} />
+            </button>
           </div>
-          <button onClick={logout} className="hidden xl:block text-[var(--text-muted)] hover:text-red-500 transition">
-            <LogOut size={20} />
-          </button>
         </div>
       )}
-    </>
+    </div>
   );
 }

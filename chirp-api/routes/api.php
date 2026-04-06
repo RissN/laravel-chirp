@@ -43,6 +43,7 @@ Route::middleware(['auth:sanctum', 'throttle:300,1'])->group(function () {
 
     // User & Profile
     Route::get('/users/search', [SearchController::class, 'search']);
+    Route::get('/users/suggestions', [UserController::class, 'suggestions']);
     Route::put('/users/profile', [UserController::class, 'update']);
     Route::get('/users/{username}', [UserController::class, 'show']);
     Route::get('/users/{username}/tweets', [UserController::class, 'tweets']);

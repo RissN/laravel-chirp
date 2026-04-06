@@ -9,11 +9,14 @@ import Avatar from '../../components/ui/Avatar';
 import Button from '../../components/ui/Button';
 import TweetComposer from '../../components/tweet/TweetComposer';
 import Input from '../../components/ui/Input';
+import { Modal } from '../../components/ui/Modal';
 import { useAuthStore } from '../../store/authStore';
+import { useToast } from '../../components/ui/ToastProvider';
 
 export default function Profile() {
   const { username } = useParams<{username: string}>();
   const { user: currentUser, setUser } = useAuthStore();
+  const { showToast } = useToast();
   const isOwnProfile = currentUser?.username === username;
   const queryClient = useQueryClient();
 
@@ -30,9 +33,12 @@ export default function Profile() {
       setIsEditModalOpen(false);
       setEditError('');
       if (res.data) setUser(res.data);
+      showToast('Profile updated!', 'success');
     },
     onError: (err: any) => {
-      setEditError(err.response?.data?.message || 'Failed to update profile');
+      const msg = err.response?.data?.message || 'Failed to update profile';
+      setEditError(msg);
+      showToast(msg, 'error');
     }
   });
 
@@ -90,6 +96,12 @@ export default function Profile() {
   const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
     setEditError('');
+    
+    if (!editForm.name.trim()) {
+      setEditError('Name is required');
+      showToast('Name is required', 'error');
+      return;
+    }
     
     // Convert empty strings to null for nullable backend validation
     const payload: any = { 
@@ -196,72 +208,70 @@ export default function Profile() {
       </div>
 
       {/* Edit Profile Modal */}
-      {isEditModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsEditModalOpen(false)}></div>
-          <div className="bg-[var(--bg-color)] border border-[var(--border-color)] w-full max-w-lg p-6 rounded-3xl shadow-2xl relative z-10 max-h-[90vh] overflow-y-auto">
-            <h2 className="text-2xl font-bold mb-6">Edit Profile</h2>
+      <Modal 
+        isOpen={isEditModalOpen} 
+        onClose={() => setIsEditModalOpen(false)}
+        title="Edit Profile"
+      >
+        <div className="max-h-[70vh] overflow-y-auto px-1 hide-scrollbar">
+          {editError && (
+             <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 text-red-500 rounded-lg text-sm">
+                {editError}
+             </div>
+          )}
 
-            {editError && (
-               <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 text-red-500 rounded-lg text-sm">
-                  {editError}
-               </div>
+          <div className="relative h-32 bg-gray-600 mb-14 rounded-t-xl group">
+            {(previewImages.header_image || editForm.header_image || user?.header_image) ? (
+               <img src={previewImages.header_image || (editForm.header_image ?? undefined) || (user?.header_image ?? undefined)} className="w-full h-full object-cover rounded-t-xl" alt="header" />
+            ) : (
+               <div className="w-full h-full bg-gradient-to-r from-blue-400 to-[#1da1f2] rounded-t-xl" />
             )}
-
-            <div className="relative h-32 bg-gray-600 mb-14 rounded-t-xl group">
-              {(previewImages.header_image || editForm.header_image || user?.header_image) ? (
-                 <img src={previewImages.header_image || (editForm.header_image ?? undefined) || (user?.header_image ?? undefined)} className="w-full h-full object-cover rounded-t-xl" alt="header" />
-              ) : (
-                 <div className="w-full h-full bg-gradient-to-r from-blue-400 to-[#1da1f2] rounded-t-xl" />
-              )}
-              <label className="absolute inset-0 flex items-center justify-center cursor-pointer bg-black/30 hover:bg-black/50 transition rounded-t-xl">
-                 <Camera size={24} className="text-white drop-shadow-md" />
-                 <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, 'header_image')} />
-              </label>
-              
-              <div className="absolute -bottom-10 left-4 w-20 h-20 rounded-full border-4 border-[var(--bg-color)] bg-gray-500 overflow-hidden group/avatar">
-                 <img src={previewImages.avatar || (editForm.avatar ?? undefined) || (user?.avatar ?? undefined) || `https://ui-avatars.com/api/?name=${user?.name}`} className="w-full h-full object-cover rounded-full" alt="avatar" />
-                 <label className="absolute inset-0 flex items-center justify-center cursor-pointer bg-black/30 hover:bg-black/50 transition rounded-full">
-                    <Camera size={16} className="text-white drop-shadow-md" />
-                    <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, 'avatar')} />
-                 </label>
-              </div>
+            <label className="absolute inset-0 flex items-center justify-center cursor-pointer bg-black/30 hover:bg-black/50 transition rounded-t-xl">
+               <Camera size={24} className="text-white drop-shadow-md" />
+               <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, 'header_image')} />
+            </label>
+            
+            <div className="absolute -bottom-10 left-4 w-20 h-20 rounded-full border-4 border-[var(--bg-color)] bg-gray-500 overflow-hidden group/avatar">
+               <img src={previewImages.avatar || (editForm.avatar ?? undefined) || (user?.avatar ?? undefined) || `https://ui-avatars.com/api/?name=${user?.name}`} className="w-full h-full object-cover rounded-full" alt="avatar" />
+               <label className="absolute inset-0 flex items-center justify-center cursor-pointer bg-black/30 hover:bg-black/50 transition rounded-full">
+                  <Camera size={16} className="text-white drop-shadow-md" />
+                  <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, 'avatar')} />
+               </label>
             </div>
-
-            <form onSubmit={handleSaveProfile} className="space-y-4">
-              <Input
-                label="Name"
-                value={editForm.name}
-                onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
-                required
-              />
-              <div className="space-y-1">
-                <label className="block text-sm font-medium text-[var(--text-color)]">Bio</label>
-                <textarea
-                  className="w-full bg-[var(--hover-bg)] border border-transparent rounded-xl px-4 py-3 text-[var(--text-color)] focus:bg-[var(--bg-color)] focus:border-[var(--color-chirp)] focus:ring-1 focus:ring-[var(--color-chirp)] focus:outline-none transition resize-none"
-                  rows={3}
-                  value={editForm.bio}
-                  onChange={(e) => setEditForm(prev => ({ ...prev, bio: e.target.value }))}
-                />
-              </div>
-              <Input
-                label="Location"
-                value={editForm.location}
-                onChange={(e) => setEditForm(prev => ({ ...prev, location: e.target.value }))}
-              />
-              <Input
-                label="Website"
-                value={editForm.website}
-                onChange={(e) => setEditForm(prev => ({ ...prev, website: e.target.value }))}
-              />
-              <div className="flex justify-end gap-3 pt-4">
-                <Button variant="ghost" type="button" onClick={() => setIsEditModalOpen(false)}>Cancel</Button>
-                <Button type="submit" isLoading={updateMutation.isPending || isUploadingImage}>Save</Button>
-              </div>
-            </form>
           </div>
+
+          <form onSubmit={handleSaveProfile} noValidate className="space-y-4">
+            <Input
+              label="Name"
+              value={editForm.name}
+              onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
+            />
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-[var(--text-color)]">Bio</label>
+              <textarea
+                className="w-full bg-[var(--hover-bg)] border border-[var(--border-color)]/20 rounded-xl px-4 py-3 text-[var(--text-color)] focus:bg-[var(--bg-color)] focus:border-[var(--color-chirp)] focus:ring-1 focus:ring-[var(--color-chirp)] focus:outline-none transition resize-none"
+                rows={3}
+                value={editForm.bio}
+                onChange={(e) => setEditForm(prev => ({ ...prev, bio: e.target.value }))}
+              />
+            </div>
+            <Input
+              label="Location"
+              value={editForm.location}
+              onChange={(e) => setEditForm(prev => ({ ...prev, location: e.target.value }))}
+            />
+            <Input
+              label="Website"
+              value={editForm.website}
+              onChange={(e) => setEditForm(prev => ({ ...prev, website: e.target.value }))}
+            />
+            <div className="flex justify-end gap-3 pt-6 pb-2">
+              <Button variant="ghost" type="button" onClick={() => setIsEditModalOpen(false)}>Cancel</Button>
+              <Button type="submit" isLoading={updateMutation.isPending || isUploadingImage}>Save</Button>
+            </div>
+          </form>
         </div>
-      )}
+      </Modal>
     </div>
   );
 }
