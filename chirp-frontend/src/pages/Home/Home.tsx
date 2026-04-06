@@ -4,10 +4,9 @@ import { Loader2 } from 'lucide-react';
 import { getTimeline } from '../../api/tweets';
 import TweetComposer from '../../components/tweet/TweetComposer';
 import TweetCard from '../../components/tweet/TweetCard';
-import { useAuthStore } from '../../store/authStore';
+
 
 export default function Home() {
-  const { user } = useAuthStore();
 
   const {
     data,

@@ -44,7 +44,7 @@ export default function RightPanel() {
         
         <div className="space-y-2">
           {trending?.data?.length > 0 ? (
-            trending.data.slice(0, 5).map((item: any, i: number) => (
+            trending?.data?.slice(0, 5).map((item: any, i: number) => (
               <div 
                 key={i} 
                 className="hover:bg-black/5 dark:hover:bg-white/5 p-3 rounded-2xl cursor-pointer transition"

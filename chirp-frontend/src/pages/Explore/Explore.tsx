@@ -1,6 +1,6 @@
 import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Loader2, Hash, User } from 'lucide-react';
+import { Loader2, Hash } from 'lucide-react';
 import { getExplore } from '../../api/tweets';
 import { searchAll } from '../../api/search';
 import TweetCard from '../../components/tweet/TweetCard';
