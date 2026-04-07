@@ -47,6 +47,21 @@ class AuthController extends Controller
             ], 401);
         }
 
+        // Manage banned users
+        if ($user->status === 'banned') {
+            if ($user->banned_until && now()->greaterThan($user->banned_until)) {
+                // Ban expired, reactivate user
+                $user->update(['status' => 'active', 'ban_reason' => null, 'banned_until' => null]);
+            } else {
+                $expiryInfo = $user->banned_until ? " until {$user->banned_until->toDateTimeString()}" : " permanently";
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Your account has been banned' . $expiryInfo . '. Reason: ' . ($user->ban_reason ?? 'Violation of community guidelines.'),
+                    'error_code' => 'account_banned',
+                ], 403);
+            }
+        }
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([

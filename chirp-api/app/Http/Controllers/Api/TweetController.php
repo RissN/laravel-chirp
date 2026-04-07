@@ -53,6 +53,18 @@ class TweetController extends Controller
         /** @var \App\Models\User $user */
         $user = $request->user();
 
+        if ($user->status === 'suspended') {
+            if ($user->banned_until && now()->greaterThan($user->banned_until)) {
+                $user->update(['status' => 'active', 'ban_reason' => null, 'banned_until' => null]);
+            } else {
+                $expiryInfo = $user->banned_until ? " until {$user->banned_until->toDateTimeString()}" : " permanently";
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Your account is suspended' . $expiryInfo . '. You cannot post new content.',
+                ], 403);
+            }
+        }
+
         $tweet = Tweet::query()->create([
             'user_id' => $user->id,
             'content' => $request->input('content'),

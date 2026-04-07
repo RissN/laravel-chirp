@@ -32,6 +32,9 @@ class User extends Authenticatable
         'followers_count',
         'following_count',
         'tweets_count',
+        'status',
+        'ban_reason',
+        'banned_until',
     ];
 
     protected $hidden = [
@@ -44,6 +47,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'birth_date' => 'date',
+            'banned_until' => 'datetime',
             'password' => 'hashed',
             'is_verified' => 'boolean',
             'is_private' => 'boolean',

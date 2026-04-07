@@ -137,12 +137,25 @@ class TweetActionController extends Controller
 
     public function reply(StoreTweetRequest $request, Tweet $tweet)
     {
+        $user = $request->user();
+        if ($user->status === 'suspended') {
+            if ($user->banned_until && now()->greaterThan($user->banned_until)) {
+                $user->update(['status' => 'active', 'ban_reason' => null, 'banned_until' => null]);
+            } else {
+                $expiryInfo = $user->banned_until ? " until {$user->banned_until->toDateTimeString()}" : " permanently";
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Your account is suspended' . $expiryInfo . '. You cannot post replies.',
+                ], 403);
+            }
+        }
+
         $reply = Tweet::create([
             'user_id' => $request->user()->id,
-            'content' => $request->content,
-            'media' => $request->media,
+            'content' => $request->input('content'),
+            'media'   => $request->input('media'),
             'tweet_type' => 'reply',
-            'parent_id' => $tweet->id
+            'parent_id'  => $tweet->id
         ]);
 
         $tweet->increment('replies_count');
@@ -170,6 +183,19 @@ class TweetActionController extends Controller
 
     public function quote(StoreTweetRequest $request, Tweet $tweet)
     {
+        $user = $request->user();
+        if ($user->status === 'suspended') {
+            if ($user->banned_until && now()->greaterThan($user->banned_until)) {
+                $user->update(['status' => 'active', 'ban_reason' => null, 'banned_until' => null]);
+            } else {
+                $expiryInfo = $user->banned_until ? " until {$user->banned_until->toDateTimeString()}" : " permanently";
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Your account is suspended' . $expiryInfo . '. You cannot post quote tweets.',
+                ], 403);
+            }
+        }
+
         $quote = Tweet::create([
             'user_id' => $request->user()->id,
             'content' => $request->content,

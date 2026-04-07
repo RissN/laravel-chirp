@@ -77,3 +77,36 @@ Route::middleware(['auth:sanctum', 'throttle:300,1'])->group(function () {
     // Media
     Route::post('/media/upload', [MediaController::class, 'upload']);
 });
+
+// =====================
+// Admin Panel Routes
+// =====================
+Route::prefix('admin')->middleware('throttle:30,1')->group(function () {
+    Route::post('/login', [\App\Http\Controllers\Admin\AuthController::class, 'login']);
+
+    Route::middleware('auth:admin')->group(function () {
+        Route::post('/logout', [\App\Http\Controllers\Admin\AuthController::class, 'logout']);
+        Route::get('/me', [\App\Http\Controllers\Admin\AuthController::class, 'me']);
+
+        // Dashboard
+        Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'stats']);
+
+        // User Management
+        Route::get('/users', [\App\Http\Controllers\Admin\UserController::class, 'index']);
+        Route::post('/users/{id}/ban', [\App\Http\Controllers\Admin\UserController::class, 'ban']);
+        Route::post('/users/{id}/suspend', [\App\Http\Controllers\Admin\UserController::class, 'suspend']);
+        Route::post('/users/{id}/unban', [\App\Http\Controllers\Admin\UserController::class, 'unban']);
+        Route::delete('/users/{id}', [\App\Http\Controllers\Admin\UserController::class, 'destroy']);
+
+        // Content Moderation
+        Route::get('/tweets', [\App\Http\Controllers\Admin\ModerationController::class, 'tweets']);
+        Route::delete('/tweets/{id}', [\App\Http\Controllers\Admin\ModerationController::class, 'deleteTweet']);
+
+        // Reports
+        Route::get('/reports', [\App\Http\Controllers\Admin\ReportController::class, 'index']);
+        Route::post('/reports/{id}/resolve', [\App\Http\Controllers\Admin\ReportController::class, 'resolve']);
+
+        // Audit Logs
+        Route::get('/logs', [\App\Http\Controllers\Admin\AuditLogController::class, 'index']);
+    });
+});

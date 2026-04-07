@@ -13,6 +13,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [bannedMsg, setBannedMsg] = useState('');
   const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
   
   const navigate = useNavigate();
@@ -33,6 +34,7 @@ export default function Login() {
     
     setIsLoading(true);
     setError('');
+    setBannedMsg('');
     setFieldErrors({});
 
     try {
@@ -47,9 +49,14 @@ export default function Login() {
       setUser(res.data.user);
       navigate('/home');
     } catch (err: any) {
+      const errorCode = err.response?.data?.error_code;
       const msg = err.response?.data?.message || 'Login failed. Please check your credentials.';
-      setError(msg);
-      showToast(msg, 'error');
+      if (errorCode === 'account_banned') {
+        setBannedMsg(msg);
+      } else {
+        setError(msg);
+        showToast(msg, 'error');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -68,6 +75,17 @@ export default function Login() {
         </div>
         
         <h1 className="text-3xl font-bold text-center text-[var(--text-color)] mb-8">Sign in to Chirp</h1>
+
+        {bannedMsg && (
+          <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-4 mb-6">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-xl">🚫</span>
+              <p className="font-bold text-red-500 text-sm">Account Banned</p>
+            </div>
+            <p className="text-red-400 text-sm leading-relaxed">{bannedMsg}</p>
+            <p className="text-red-400/60 text-xs mt-2">If you believe this is a mistake, please contact support.</p>
+          </div>
+        )}
 
         {error && (
           <div className="bg-red-500/10 text-red-500 p-3 rounded-lg text-sm mb-6 border border-red-500/20">

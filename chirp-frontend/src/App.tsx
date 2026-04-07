@@ -18,10 +18,21 @@ import Profile from './pages/Profile/Profile';
 import TweetDetail from './pages/Tweet/TweetDetail';
 import Settings from './pages/Settings/Settings';
 
+// Admin Panel
+import AdminLogin from './pages/Admin/Login';
+import AdminLayout from './pages/Admin/Layout/AdminLayout';
+import AdminDashboard from './pages/Admin/Dashboard';
+import AdminUsers from './pages/Admin/UsersManager';
+import AdminModeration from './pages/Admin/Moderation';
+import AdminReports from './pages/Admin/Reports';
+import AdminAuditLogs from './pages/Admin/AuditLogs';
+import { useAdminStore } from './store/adminStore';
+
 function App() {
   const { token, user, setUser, logout, isAuthenticated } = useAuthStore();
   const { incrementUnreadCount } = useNotificationStore();
   const { isDark } = useThemeStore();
+  const { isAuthenticated: isAdminAuthenticated } = useAdminStore();
 
   useEffect(() => {
     if (isDark) {
@@ -84,6 +95,15 @@ function App() {
         <Route path="settings" element={<Settings />} />
         <Route path="tweet/:id" element={<TweetDetail />} />
         <Route path=":username" element={<Profile />} />
+      </Route>
+      {/* Admin Panel (Isolated) */}
+      <Route path="/admin/login" element={isAdminAuthenticated ? <Navigate to="/admin" /> : <AdminLogin />} />
+      <Route path="/admin" element={isAdminAuthenticated ? <AdminLayout /> : <Navigate to="/admin/login" />}>
+        <Route index element={<AdminDashboard />} />
+        <Route path="users" element={<AdminUsers />} />
+        <Route path="moderation" element={<AdminModeration />} />
+        <Route path="reports" element={<AdminReports />} />
+        <Route path="logs" element={<AdminAuditLogs />} />
       </Route>
     </Routes>
   );
