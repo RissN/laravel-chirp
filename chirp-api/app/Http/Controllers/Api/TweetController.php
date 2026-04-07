@@ -17,7 +17,7 @@ class TweetController extends Controller
         $user = $request->user();
         
         // Get following IDs
-        $followingIds = $user->following()->pluck('users.id');
+        $followingIds = $user->following()->where('follows.status', 'accepted')->allRelatedIds();
         // Include their own tweets
         $followingIds->push($user->id);
 

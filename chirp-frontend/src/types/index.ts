@@ -15,6 +15,9 @@ export interface User {
   following_count: number;
   tweets_count: number;
   joined_at: string;
+  is_following: boolean;
+  is_followed_by: boolean;
+  follow_status: 'pending' | 'accepted' | null;
 }
 
 export interface Tweet {

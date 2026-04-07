@@ -57,8 +57,9 @@ class FollowController extends Controller
             'success' => true,
             'message' => $message,
             'data' => [
-                'is_following' => !$follow,
-                'followers_count' => $targetUser->followers_count,
+                'is_following' => (bool) $user->following()->where('following_id', $targetUser->id)->where('status', 'accepted')->exists(),
+                'status' => $user->following()->where('following_id', $targetUser->id)->first()?->pivot?->status,
+                'followers_count' => $targetUser->refresh()->followers_count,
             ]
         ]);
     }

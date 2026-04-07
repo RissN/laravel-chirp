@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\DB;
 
 class TweetResource extends JsonResource
 {
@@ -28,9 +29,18 @@ class TweetResource extends JsonResource
             'original_tweet' => new TweetResource($this->whenLoaded('originalTweet')),
             
             // Interaction booleans specific to auth user
-            'is_liked' => $user ? $this->likes()->where('user_id', $user->id)->exists() : false,
-            'is_retweeted' => $user ? $this->retweets()->where('user_id', $user->id)->exists() : false,
-            'is_bookmarked' => $user ? $user->bookmarks()->where('tweet_id', $this->id)->exists() : false,
+            'is_liked' => $user && DB::table('likes')
+                ->where('user_id', $user->id)
+                ->where('tweet_id', $this->id)
+                ->exists(),
+            'is_retweeted' => $user && DB::table('retweets')
+                ->where('user_id', $user->id)
+                ->where('tweet_id', $this->id)
+                ->exists(),
+            'is_bookmarked' => $user && DB::table('bookmarks')
+                ->where('user_id', $user->id)
+                ->where('tweet_id', $this->id)
+                ->exists(),
         ];
     }
 }

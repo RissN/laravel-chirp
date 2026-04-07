@@ -76,6 +76,9 @@ Route::middleware(['auth:sanctum', 'throttle:300,1'])->group(function () {
 
     // Media
     Route::post('/media/upload', [MediaController::class, 'upload']);
+    
+    // Reports
+    Route::post('/reports', [\App\Http\Controllers\Api\ReportController::class, 'store']);
 });
 
 // =====================

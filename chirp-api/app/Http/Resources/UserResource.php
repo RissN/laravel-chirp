@@ -26,6 +26,22 @@ class UserResource extends JsonResource
             'following_count' => $this->following_count,
             'tweets_count' => $this->tweets_count,
             'joined_at' => $this->created_at->format('M Y'), // e.g. "Mar 2024"
+            'is_following' => auth('sanctum')->check() && \Illuminate\Support\Facades\DB::table('follows')
+                ->where('follower_id', auth('sanctum')->id())
+                ->where('following_id', $this->id)
+                ->where('status', 'accepted')
+                ->exists(),
+            'is_followed_by' => auth('sanctum')->check() && \Illuminate\Support\Facades\DB::table('follows')
+                ->where('follower_id', $this->id)
+                ->where('following_id', auth('sanctum')->id())
+                ->where('status', 'accepted')
+                ->exists(),
+            'follow_status' => auth('sanctum')->check()
+                ? \Illuminate\Support\Facades\DB::table('follows')
+                    ->where('follower_id', auth('sanctum')->id())
+                    ->where('following_id', $this->id)
+                    ->value('status')
+                : null,
         ];
     }
 }

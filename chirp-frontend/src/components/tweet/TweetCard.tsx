@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
-import { Heart, MessageCircle, Repeat2, Bookmark, Share, Trash2 } from 'lucide-react';
+import { Heart, MessageCircle, Repeat2, Bookmark, Share, Trash2, MoreHorizontal, AlertTriangle } from 'lucide-react';
+import ReportModal from './ReportModal';
+import { motion, AnimatePresence } from 'framer-motion';
 import { formatDistanceToNowStrict } from 'date-fns';
-import { motion } from 'framer-motion';
 import Avatar from '../ui/Avatar';
 import type { Tweet } from '../../types';
 import { toggleLike, toggleRetweet, toggleBookmark, deleteTweet } from '../../api/tweets';
@@ -25,6 +26,8 @@ export default function TweetCard({ tweet }: { tweet: Tweet }) {
   const queryClient = useQueryClient();
   const { confirm } = useModal();
   const { showToast } = useToast();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   const isOwner = currentUser?.id === tweet.user.id;
 
@@ -84,6 +87,7 @@ export default function TweetCard({ tweet }: { tweet: Tweet }) {
     mutationFn: () => toggleBookmark(tweet.id),
     onSuccess: (data) => {
       setOptimisticBookmark(data.data.is_bookmarked);
+      queryClient.invalidateQueries({ queryKey: ['bookmarks'] });
     }
   });
 
@@ -157,16 +161,45 @@ export default function TweetCard({ tweet }: { tweet: Tweet }) {
               <span className="text-[var(--text-muted)] text-[14px]">· {timeAgo}</span>
             </div>
             
-            {isOwner && (
+            <div className="relative">
               <button 
-                onClick={handleDelete}
-                className="p-2 -mr-2 text-[var(--text-muted)] hover:text-red-500 hover:bg-red-500/10 rounded-full transition-colors"
-                title="Delete tweet"
-                disabled={deleteMutation.isPending}
+                onClick={(e) => { e.stopPropagation(); setIsMenuOpen(!isMenuOpen); }}
+                className="p-2 -mr-2 text-[var(--text-muted)] hover:text-[var(--color-chirp)] hover:bg-[var(--color-chirp)]/10 rounded-full transition-colors"
+                title="More"
               >
-                <Trash2 size={16} className={deleteMutation.isPending ? 'animate-pulse' : ''} />
+                <MoreHorizontal size={18} />
               </button>
-            )}
+
+              <AnimatePresence>
+                {isMenuOpen && (
+                  <>
+                    <div className="fixed inset-0 z-10" onClick={() => setIsMenuOpen(false)} />
+                    <motion.div 
+                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                      className="absolute top-0 right-0 mt-8 w-48 bg-black border border-white/[0.08] rounded-xl overflow-hidden shadow-2xl z-20 backdrop-blur-2xl"
+                    >
+                      {isOwner ? (
+                        <button
+                          onClick={handleDelete}
+                          className="w-full text-left px-4 py-3 text-sm text-red-500 hover:bg-red-500/10 flex items-center gap-3 transition-colors font-bold"
+                        >
+                          <Trash2 size={16} /> Delete Tweet
+                        </button>
+                      ) : (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setIsReportModalOpen(true); setIsMenuOpen(false); }}
+                          className="w-full text-left px-4 py-3 text-sm text-white/70 hover:bg-white/10 flex items-center gap-3 transition-colors font-medium"
+                        >
+                          <AlertTriangle size={16} className="text-orange-500/70" /> Report Tweet
+                        </button>
+                      )}
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
 
           <p className="text-[var(--text-color)] mt-0.5 text-[15px] leading-relaxed whitespace-pre-wrap word-break">
@@ -243,6 +276,12 @@ export default function TweetCard({ tweet }: { tweet: Tweet }) {
           </div>
         </div>
       </div>
+      <ReportModal 
+         isOpen={isReportModalOpen}
+         onClose={() => setIsReportModalOpen(false)}
+         reportableId={displayTweet.id}
+         reportableType="tweet"
+      />
     </article>
   );
 }

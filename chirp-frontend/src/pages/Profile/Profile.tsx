@@ -2,8 +2,10 @@ import { useState } from 'react';
 import axios from 'axios';
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
-import { Loader2, Calendar, Link as LinkIcon, MapPin, Camera } from 'lucide-react';
-import { getUserProfile, getUserTweets, updateProfile } from '../../api/users';
+import { Loader2, Calendar, Link as LinkIcon, MapPin, Camera, MoreHorizontal, AlertTriangle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import ReportModal from '../../components/tweet/ReportModal';
+import { getUserProfile, getUserTweets, updateProfile, toggleFollowUser } from '../../api/users';
 import TweetCard from '../../components/tweet/TweetCard';
 import Avatar from '../../components/ui/Avatar';
 import Button from '../../components/ui/Button';
@@ -25,6 +27,8 @@ export default function Profile() {
   const [editError, setEditError] = useState('');
   const [editForm, setEditForm] = useState({ name: '', bio: '', location: '', website: '', avatar: '', header_image: '' });
   const [previewImages, setPreviewImages] = useState({ avatar: '', header_image: '' });
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   const updateMutation = useMutation({
     mutationFn: updateProfile,
@@ -39,6 +43,17 @@ export default function Profile() {
       const msg = err.response?.data?.message || 'Failed to update profile';
       setEditError(msg);
       showToast(msg, 'error');
+    }
+  });
+  
+  const followMutation = useMutation({
+    mutationFn: () => toggleFollowUser(username!),
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ['profile', username] });
+      showToast(res.message || 'Action successful', 'success');
+    },
+    onError: (err: any) => {
+      showToast(err.response?.data?.message || 'Failed to perform action', 'error');
     }
   });
 
@@ -159,18 +174,71 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* Profile Actions */}
-      <div className="flex justify-end p-4 h-20">
+      <div className="flex justify-end p-4 h-20 gap-2 items-start text-sm">
+        {!isOwnProfile && (
+          <div className="relative">
+            <button 
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="p-2 border border-[var(--border-color)] rounded-full hover:bg-[var(--hover-bg)] transition-colors"
+            >
+              <MoreHorizontal size={20} />
+            </button>
+            <AnimatePresence>
+              {isMenuOpen && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setIsMenuOpen(false)} />
+                  <motion.div 
+                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                    className="absolute top-12 right-0 w-48 bg-black border border-white/[0.08] rounded-xl overflow-hidden shadow-2xl z-20 backdrop-blur-2xl"
+                  >
+                    <button
+                      onClick={() => { setIsReportModalOpen(true); setIsMenuOpen(false); }}
+                      className="w-full text-left px-4 py-3 text-sm text-white/70 hover:bg-white/10 flex items-center gap-3 transition-colors font-medium"
+                    >
+                      <AlertTriangle size={16} className="text-orange-500/70" /> Report @{user.username}
+                    </button>
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
         {isOwnProfile ? (
           <Button variant="outline" size="sm" className="h-10" onClick={() => handleOpenEdit(user)}>Edit Profile</Button>
         ) : (
-          <Button variant="primary" size="sm" className="h-10">Follow</Button>
+          <Button 
+            variant={user.is_following || user.follow_status === 'pending' ? 'outline' : 'primary'} 
+            size="sm" 
+            className="h-10 min-w-[100px] group/follow"
+            onClick={() => followMutation.mutate()}
+            disabled={followMutation.isPending}
+          >
+            {user.follow_status === 'pending' ? (
+              'Requested'
+            ) : user.is_following ? (
+              <>
+                <span className="group-hover/follow:hidden">Following</span>
+                <span className="hidden group-hover/follow:inline text-red-500">Unfollow</span>
+              </>
+            ) : (
+              'Follow'
+            )}
+          </Button>
         )}
       </div>
 
       {/* Profile Info */}
       <div className="px-4 pb-4 border-b border-[var(--border-color)]">
-        <h2 className="text-xl font-bold">{user.name}</h2>
+        <div className="flex items-center gap-2">
+          <h2 className="text-xl font-bold">{user.name}</h2>
+          {user.is_followed_by && (
+            <span className="bg-[var(--hover-bg)] text-[var(--text-muted)] text-[10px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">
+              Follows you
+            </span>
+          )}
+        </div>
         <p className="text-[var(--text-muted)]">@{user.username}</p>
         
         <p className="mt-3 text-[var(--text-color)]">
@@ -272,6 +340,12 @@ export default function Profile() {
           </form>
         </div>
       </Modal>
+      <ReportModal 
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
+        reportableId={user.id}
+        reportableType="user"
+      />
     </div>
   );
 }

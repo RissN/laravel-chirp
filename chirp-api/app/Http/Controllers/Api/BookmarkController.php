@@ -14,10 +14,10 @@ class BookmarkController extends Controller
         $user = $request->user();
 
         $tweets = Tweet::with(['user', 'parent.user', 'originalTweet.user'])
-            ->whereHas('bookmarks', function ($q) use ($user) {
-                $q->where('user_id', $user->id);
-            })
-            ->latest('bookmarks.created_at')
+            ->join('bookmarks', 'tweets.id', '=', 'bookmarks.tweet_id')
+            ->where('bookmarks.user_id', $user->id)
+            ->select('tweets.*')
+            ->orderByDesc('bookmarks.created_at')
             ->paginate(20);
 
         return TweetResource::collection($tweets)->additional([
