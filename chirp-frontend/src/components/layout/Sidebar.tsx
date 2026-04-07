@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Search, Bell, Mail, Bookmark, User, LogOut, Feather, Moon, Sun, Plus } from 'lucide-react';
+import { Home, Search, Bell, Mail, Bookmark, User, LogOut, Feather, Moon, Sun, Plus, Settings } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
 import { useNotificationStore } from '../../store/notificationStore';
@@ -17,6 +17,7 @@ export default function Sidebar() {
     { name: 'Messages', path: '/messages', icon: Mail },
     { name: 'Bookmarks', path: '/bookmarks', icon: Bookmark },
     { name: 'Profile', path: `/${user?.username}`, icon: User },
+    { name: 'Settings', path: '/settings', icon: Settings },
   ];
 
   return (

@@ -16,6 +16,7 @@ import Messages from './pages/Messages/Messages';
 import Bookmarks from './pages/Bookmarks/Bookmarks';
 import Profile from './pages/Profile/Profile';
 import TweetDetail from './pages/Tweet/TweetDetail';
+import Settings from './pages/Settings/Settings';
 
 function App() {
   const { token, user, setUser, logout, isAuthenticated } = useAuthStore();
@@ -80,6 +81,7 @@ function App() {
         <Route path="notifications" element={<Notifications />} />
         <Route path="messages" element={<Messages />} />
         <Route path="bookmarks" element={<Bookmarks />} />
+        <Route path="settings" element={<Settings />} />
         <Route path="tweet/:id" element={<TweetDetail />} />
         <Route path=":username" element={<Profile />} />
       </Route>

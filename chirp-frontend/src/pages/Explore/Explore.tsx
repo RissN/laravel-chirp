@@ -1,14 +1,23 @@
-import { useSearchParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useSearchParams, Link } from 'react-router-dom';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Loader2, Hash } from 'lucide-react';
 import { getExplore } from '../../api/tweets';
 import { searchAll } from '../../api/search';
+import { toggleFollowUser } from '../../api/users';
 import TweetCard from '../../components/tweet/TweetCard';
 import Avatar from '../../components/ui/Avatar';
 
 export default function Explore() {
   const [searchParams] = useSearchParams();
   const q = searchParams.get('q');
+  const queryClient = useQueryClient();
+
+  const followMutation = useMutation({
+    mutationFn: (username: string) => toggleFollowUser(username),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['search', q] });
+    }
+  });
 
   // Search logic
   const { data: searchResults, isLoading: isSearchLoading } = useQuery({
@@ -39,12 +48,19 @@ export default function Explore() {
               <div className="border-b border-[var(--border-color)]">
                 <h2 className="px-4 py-3 font-bold text-lg">People</h2>
                 {searchResults.data.users.map((user: any) => (
-                  <div key={user.id} className="flex items-center gap-3 p-4 hover:bg-[var(--hover-bg)] border-t border-[var(--border-color)]">
-                    <Avatar name={user.name} src={user.avatar} size="md" />
-                    <div>
-                      <p className="font-bold">{user.name}</p>
-                      <p className="text-[var(--text-muted)]">@{user.username}</p>
+                  <div key={user.id} className="flex items-center gap-3 p-4 hover:bg-[var(--hover-bg)] border-t border-[var(--border-color)] transition-colors">
+                    <Avatar name={user.name} src={user.avatar} size="md" username={user.username} />
+                    <div className="flex-1 min-w-0 pr-2">
+                      <Link to={`/${user.username}`} className="font-bold hover:underline block truncate">{user.name}</Link>
+                      <p className="text-[var(--text-muted)] text-[15px]">@{user.username}</p>
                     </div>
+                    <button
+                      onClick={() => followMutation.mutate(user.username)}
+                      disabled={followMutation.isPending}
+                      className="px-4 py-1.5 text-[14px] font-black rounded-full bg-[var(--text-color)] text-[var(--bg-color)] hover:opacity-90 transition-all active:scale-95 whitespace-nowrap"
+                    >
+                      Follow
+                    </button>
                   </div>
                 ))}
               </div>

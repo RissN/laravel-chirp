@@ -15,6 +15,9 @@ class SearchController extends Controller
     public function searchAll(Request $request)
     {
         $q = $request->query('q');
+        if ($q) {
+            $q = ltrim($q, '@');
+        }
         $type = $request->query('type', 'all'); // all, users, tweets
 
         if (!$q) {
@@ -61,6 +64,10 @@ class SearchController extends Controller
     public function search(Request $request)
     {
         $q = $request->query('q');
+        
+        if ($q) {
+            $q = ltrim($q, '@');
+        }
         
         $users = User::where('name', 'LIKE', "%{$q}%")
             ->orWhere('username', 'LIKE', "%{$q}%")

@@ -9,6 +9,7 @@ use App\Http\Resources\TweetResource;
 use App\Models\User;
 use App\Models\Tweet;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -30,6 +31,35 @@ class UserController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Profile updated successfully',
+            'data' => new UserResource($user)
+        ]);
+    }
+
+    public function updateSettings(Request $request)
+    {
+        $user = $request->user();
+        
+        $validated = $request->validate([
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'current_password' => 'nullable|string',
+            'new_password' => 'nullable|string|min:8|confirmed',
+        ]);
+
+        if (!empty($validated['new_password'])) {
+            if (!$request->current_password || !Hash::check($request->current_password, $user->password)) {
+                return response()->json([
+                    'message' => 'Current password is incorrect'
+                ], 400);
+            }
+            $user->password = Hash::make($validated['new_password']);
+        }
+
+        $user->email = $validated['email'];
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Settings updated successfully',
             'data' => new UserResource($user)
         ]);
     }
