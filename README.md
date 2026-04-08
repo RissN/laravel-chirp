@@ -10,40 +10,52 @@
 ## ✨ Key Features
 
 ### 📨 Social Interaction
-- **Real-time Timeline**: See tweets from people you follow instantly.
-- **Rich Tweeting**: post text and multiple images with automatic storage management.
+- **Real-time Timeline**: See tweets from people you follow instantly with optimized loading.
+- **Rich Tweeting**: Post text and multiple images with automatic storage management.
 - **Interactions**: Like, Retweet, Quote, and Reply to tweets with optimistic UI updates.
 - **Hashtags & Trending**: Dynamic trending system based on hashtag frequency.
 - **Bookmarks**: Save your favorite tweets for later.
 
 ### 🔔 Real-time Notifications & Messaging
-- **Instant Notifications**: Get notified immediately when someone likes, retweets, or follows you (powered by Laravel Reverb).
-- **Direct Messaging**: Private, real-time chat between users.
+- **Instant Notifications**: Get notified immediately for likes, retweets, or follows (powered by Laravel Reverb).
+- **Advanced Direct Messaging**: Private, real-time chat with a sleek glassmorphism UI and user discovery search.
 
 ### 👤 Profile & Personalization
-- **Full Profile Customization**: Update your Bio, Location, Website, and upload professional Avatars & Header banners.
-- **Dark/Light Mode**: Sleek, eye-friendly themes that persist across sessions.
+- **Full Profile Customization**: Update BIOS, Location, Website, and upload Avatars & Header banners.
+- **Dark/Light Mode**: Sleek themes that persist across sessions.
 - **Account Privacy**: Clean authentication system powered by Laravel Sanctum.
+
+### 🛡️ Administration & Moderation
+- **Management Dashboard**: Comprehensive admin panel for overviewing platform health.
+- **User Management**: Tools to manage accounts, roles, and permissions.
+- **Moderation System**: Robust reporting system for content and user behavior.
+- **Audit Logs**: Detailed tracking of administrative actions for accountability.
+- **Community Safety**: Built-in reporting mechanism to keep the platform safe.
 
 ### 🔍 Discovery
 - **Global Search**: Find users and tweets across the entire platform.
-- **Explore Page**: Discover new content and see what's happening right now.
+- **Explore Page**: Discover new content and trending topics.
+
+## 🎨 Design Philosophy
+- **Premium Aesthetics**: Modern, clean design using TailWind CSS and Framer Motion.
+- **Glassmorphism**: Elegant translucent UI elements for a high-end feel.
+- **Micro-animations**: Smooth transitions and interactive feedback throughout the app.
 
 ## 🛠️ Technology Stack
 
 ### Backend
 - **Laravel 12**: Robust PHP framework for the REST API.
 - **Laravel Sanctum**: Secure token-based authentication.
-- **Laravel Reverb**: High-performance WebSocket server for real-time features.
+- **Laravel Reverb**: High-performance WebSocket server.
 - **MySQL**: Relational database for data persistence.
 
 ### Frontend
-- **React 19**: Modern UI library with the latest features.
+- **React 19**: Modern UI library with the latest Concurrent features.
 - **Vite**: Ultra-fast build tool and development server.
+- **Zustand**: Lightweight, high-performance state management.
 - **TanStack Query (v5)**: Efficient server-state management and caching.
 - **Tailwind CSS**: Premium, utility-first styling with custom themes.
-- **Lucide React**: Beautiful, consistent iconography.
-- **Framer Motion**: Smooth animations and transitions.
+- **Framer Motion**: State-of-the-art animations and transitions.
 
 ---
 
@@ -72,7 +84,7 @@
    ```
    *Configure your database settings in `.env` then:*
    ```bash
-   php artisan migrate
+   php artisan migrate --seed
    php artisan storage:link
    ```
 
@@ -111,4 +123,4 @@ Distributed under the MIT License. See `LICENSE` for more information.
 Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
 ---
-*Built with ❤️ by [Your Name]*
+*Built with ❤️ by Antigravity*
