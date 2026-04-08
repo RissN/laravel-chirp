@@ -17,15 +17,14 @@ class MediaController extends Controller
 
         $folder = $request->type ?? 'uploads';
         
-        $path = $request->file('media')->store('public/' . $folder);
-        // Replace public/ with storage/ for URL
-        $url = url(Storage::url($path));
+        $path = $request->file('media')->store($folder, 'public');
+        $url = asset(Storage::disk('public')->url($path));
 
         return response()->json([
             'success' => true,
             'data' => [
                 'url' => $url,
-                'path' => str_replace('public/', 'storage/', $path)
+                'path' => 'storage/' . $path
             ]
         ]);
     }
