@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAdminUsers, banUser, suspendUser, unbanUser, deleteUser } from '../../api/admin';
 import { Search, Ban, UserX, UserCheck, Trash2, Loader2, ChevronDown } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, string> = {
@@ -76,8 +75,8 @@ export default function AdminUsers() {
   return (
     <div className="p-8">
       <div className="mb-6">
-        <h1 className="text-2xl font-black text-white">User Management</h1>
-        <p className="text-white/40 text-sm mt-1">Manage, ban, or remove platform users</p>
+        <h1 className="text-2xl font-black text-[var(--text-color)]">User Management</h1>
+        <p className="text-[var(--text-muted)] text-sm mt-1">Manage, ban, or remove platform users</p>
       </div>
 
       {feedback && (
@@ -87,41 +86,33 @@ export default function AdminUsers() {
       {/* Filters */}
       <div className="flex gap-3 mb-6">
         <div className="relative flex-1 max-w-sm">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
           <input
             type="text"
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search by name, username, or email..."
-            className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-purple-500/50 transition-all"
+            className="w-full bg-transparent border border-[var(--border-color)]/30 rounded-xl pl-9 pr-4 py-2.5 text-[var(--text-color)] text-sm placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--color-chirp)] focus:ring-1 focus:ring-[var(--color-chirp)] transition-all"
           />
         </div>
         <div className="relative">
           <button
             type="button"
             onClick={() => setIsStatusFilterOpen(!isStatusFilterOpen)}
-            className="bg-white/[0.04] border border-white/[0.07] rounded-xl px-4 py-2.5 text-white text-sm flex items-center gap-2 hover:bg-white/[0.06] transition-all min-w-[140px] justify-between"
+            className="bg-transparent border border-[var(--border-color)]/30 rounded-xl px-4 py-2.5 text-[var(--text-color)] text-sm flex items-center gap-2 hover:bg-[var(--hover-bg)] transition-all min-w-[140px] justify-between"
           >
             <span className="capitalize">{statusFilter || 'All Status'}</span>
-            <ChevronDown size={14} className={`text-white/30 transform transition-transform duration-200 ${isStatusFilterOpen ? 'rotate-180' : ''}`} />
+            <ChevronDown size={14} className={`text-[var(--text-muted)] transform transition-transform duration-200 ${isStatusFilterOpen ? 'rotate-180' : ''}`} />
           </button>
 
-          <AnimatePresence>
             {isStatusFilterOpen && (
               <>
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
+                <div 
                   className="fixed inset-0 z-[60]" 
                   onClick={() => setIsStatusFilterOpen(false)} 
                 />
-                <motion.div 
-                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                  transition={{ duration: 0.2, ease: "easeOut" }}
-                  className="absolute top-full left-0 mt-2 min-w-[140px] bg-black border border-white/[0.08] rounded-xl overflow-hidden shadow-2xl z-[70] backdrop-blur-2xl"
+                <div 
+                  className="absolute top-full left-0 mt-2 min-w-[140px] bg-[var(--bg-color)] border border-[var(--border-color)]/30 rounded-xl overflow-hidden shadow-2xl z-[70] backdrop-blur-2xl"
                 >
                   {[
                     { label: 'All Status', value: '' },
@@ -136,40 +127,39 @@ export default function AdminUsers() {
                         setStatusFilter(opt.value);
                         setIsStatusFilterOpen(false);
                       }}
-                      className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-white/10 ${
-                        statusFilter === opt.value ? 'text-purple-400 bg-white/[0.05]' : 'text-white/70'
+                      className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-[var(--hover-bg)] ${
+                        statusFilter === opt.value ? 'text-[var(--color-chirp)] bg-[var(--hover-bg)]/50' : 'text-[var(--text-color)]'
                       }`}
                     >
                       {opt.label}
                     </button>
                   ))}
-                </motion.div>
+                </div>
               </>
             )}
-          </AnimatePresence>
         </div>
       </div>
 
       {/* Table */}
-      <div className="bg-white/[0.04] border border-white/[0.06] rounded-2xl overflow-hidden">
+      <div className="bg-transparent border border-[var(--border-color)]/30 rounded-2xl overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-white/5">
-              <th className="text-left px-6 py-4 text-white/40 font-medium">User</th>
-              <th className="text-left px-6 py-4 text-white/40 font-medium">Email</th>
-              <th className="text-left px-6 py-4 text-white/40 font-medium">Status</th>
-              <th className="text-left px-6 py-4 text-white/40 font-medium">Joined</th>
-              <th className="text-right px-6 py-4 text-white/40 font-medium">Actions</th>
+            <tr className="border-b border-[var(--border-color)]/30">
+              <th className="text-left px-6 py-4 text-[var(--text-muted)] font-medium">User</th>
+              <th className="text-left px-6 py-4 text-[var(--text-muted)] font-medium">Email</th>
+              <th className="text-left px-6 py-4 text-[var(--text-muted)] font-medium">Status</th>
+              <th className="text-left px-6 py-4 text-[var(--text-muted)] font-medium">Joined</th>
+              <th className="text-right px-6 py-4 text-[var(--text-muted)] font-medium">Actions</th>
             </tr>
           </thead>
           <tbody>
             {isLoading ? (
-              <tr><td colSpan={5} className="text-center py-12"><Loader2 className="animate-spin text-purple-400 mx-auto" size={24} /></td></tr>
+              <tr><td colSpan={5} className="text-center py-12"><Loader2 className="animate-spin text-[var(--color-chirp)] mx-auto" size={24} /></td></tr>
             ) : data?.data?.length === 0 ? (
-              <tr><td colSpan={5} className="text-center py-12 text-white/30">No users found</td></tr>
+              <tr><td colSpan={5} className="text-center py-12 text-[var(--text-muted)]">No users found</td></tr>
             ) : (
               data?.data?.map((user: any) => (
-                <tr key={user.id} className="border-b border-white/5 hover:bg-white/5 transition-all">
+                <tr key={user.id} className="border-b border-[var(--border-color)]/30 hover:bg-[var(--hover-bg)] transition-all">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <img
@@ -178,14 +168,14 @@ export default function AdminUsers() {
                         className="w-8 h-8 rounded-full object-cover"
                       />
                       <div>
-                        <p className="text-white font-bold">{user.name}</p>
-                        <p className="text-white/40 text-xs">@{user.username}</p>
+                        <p className="text-[var(--text-color)] font-bold">{user.name}</p>
+                        <p className="text-[var(--text-muted)] text-xs">@{user.username}</p>
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-white/60">{user.email}</td>
+                  <td className="px-6 py-4 text-[var(--text-muted)]">{user.email}</td>
                   <td className="px-6 py-4"><StatusBadge status={user.status} /></td>
-                  <td className="px-6 py-4 text-white/40 text-xs">{new Date(user.created_at).toLocaleDateString()}</td>
+                  <td className="px-6 py-4 text-[var(--text-muted)] text-xs">{new Date(user.created_at).toLocaleDateString()}</td>
                   <td className="px-6 py-4">
                     <div className="flex items-center justify-end gap-2">
                       {user.status !== 'banned' && (
@@ -233,45 +223,37 @@ export default function AdminUsers() {
 
       {/* Action Confirmation Modal */}
       {actionModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="bg-white/[0.04] border border-white/[0.07] rounded-3xl p-8 w-full max-w-md mx-4 shadow-2xl">
-            <h2 className="text-white font-black text-lg mb-2 capitalize">
+        <div className="fixed inset-0 z-50 flex items-start pt-[10vh] justify-center bg-[#242d34]/70 backdrop-blur-sm">
+          <div className="bg-[var(--bg-color)] border border-[var(--border-color)]/30 rounded-2xl p-8 w-full max-w-md mx-4 shadow-2xl">
+            <h2 className="text-[var(--text-color)] font-black text-lg mb-2 capitalize">
               {actionModal.type === 'unban' ? 'Reinstate' : actionModal.type} User
             </h2>
-            <p className="text-white/50 text-sm mb-6">
+            <p className="text-[var(--text-muted)] text-sm mb-6">
               Are you sure you want to {actionModal.type === 'unban' ? 'reinstate' : actionModal.type}{' '}
-              <strong className="text-white">@{actionModal.user.username}</strong>?
+              <strong className="text-[var(--text-color)]">@{actionModal.user.username}</strong>?
               {actionModal.type === 'delete' && ' This action is irreversible.'}
             </p>
             {needsReason && (
               <>
                 <div className="mb-4 relative">
-                  <label className="block text-white/60 text-sm mb-2">Duration</label>
+                  <label className="block text-[var(--text-muted)] text-sm mb-2">Duration</label>
                   <button
                     type="button"
                     onClick={() => setIsDurationOpen(!isDurationOpen)}
-                    className="w-full bg-white/[0.04] border border-white/[0.07] rounded-xl px-4 py-2.5 text-white text-sm flex items-center justify-between hover:bg-white/[0.06] transition-all"
+                    className="w-full bg-transparent border border-[var(--border-color)]/30 rounded-xl px-4 py-2.5 text-[var(--text-color)] text-sm flex items-center justify-between hover:bg-[var(--hover-bg)] transition-all"
                   >
                     <span>{selectedDurationLabel}</span>
-                    <ChevronDown size={14} className={`text-white/30 transform transition-transform duration-200 ${isDurationOpen ? 'rotate-180' : ''}`} />
+                    <ChevronDown size={14} className={`text-[var(--text-muted)] transform transition-transform duration-200 ${isDurationOpen ? 'rotate-180' : ''}`} />
                   </button>
 
-                  <AnimatePresence>
                     {isDurationOpen && (
                       <>
-                        <motion.div 
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
+                        <div 
                           className="fixed inset-0 z-[60]" 
                           onClick={() => setIsDurationOpen(false)} 
                         />
-                        <motion.div 
-                          initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                          transition={{ duration: 0.2, ease: "easeOut" }}
-                          className="absolute top-full left-0 right-0 mt-2 bg-black border border-white/[0.08] rounded-xl overflow-hidden shadow-2xl z-[70] backdrop-blur-2xl"
+                        <div 
+                          className="absolute top-full left-0 right-0 mt-2 bg-[var(--bg-color)] border border-[var(--border-color)]/30 rounded-xl overflow-hidden shadow-2xl z-[70] backdrop-blur-2xl"
                         >
                           {durationOptions.map((opt) => (
                             <button
@@ -281,25 +263,24 @@ export default function AdminUsers() {
                                 setDuration(opt.value);
                                 setIsDurationOpen(false);
                               }}
-                              className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-white/10 ${
-                                duration === opt.value ? 'text-purple-400 bg-white/[0.05]' : 'text-white/70'
+                              className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-[var(--hover-bg)] ${
+                                duration === opt.value ? 'text-[var(--color-chirp)] bg-[var(--hover-bg)]/50' : 'text-[var(--text-color)]'
                               }`}
                             >
                               {opt.label}
                             </button>
                           ))}
-                        </motion.div>
+                        </div>
                       </>
                     )}
-                  </AnimatePresence>
                 </div>
                 <div className="mb-6">
-                  <label className="block text-white/60 text-sm mb-2">Reason (required)</label>
+                  <label className="block text-[var(--text-muted)] text-sm mb-2">Reason (required)</label>
                   <textarea
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
                     rows={3}
-                    className="w-full bg-white/[0.04] border border-white/[0.07] rounded-xl px-4 py-3 text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-purple-500/50 transition-all resize-none"
+                    className="w-full bg-transparent border border-[var(--border-color)]/30 rounded-xl px-4 py-3 text-[var(--text-color)] text-sm placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--color-chirp)] focus:ring-1 focus:ring-[var(--color-chirp)] transition-all resize-none"
                     placeholder="Describe the reason..."
                   />
                 </div>
@@ -308,7 +289,7 @@ export default function AdminUsers() {
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => { setActionModal(null); setReason(''); }}
-                className="px-5 py-2.5 rounded-xl bg-white/5 text-white/60 hover:bg-white/10 text-sm font-medium transition-all"
+                className="px-5 py-2.5 rounded-full border border-[var(--border-color)]/30 bg-transparent text-[var(--text-color)] hover:bg-[var(--hover-bg)] text-sm font-bold transition-all"
               >
                 Cancel
               </button>

@@ -27,8 +27,8 @@ export default function AdminModeration() {
   return (
     <div className="p-8">
       <div className="mb-6">
-        <h1 className="text-2xl font-black text-white">Content Moderation</h1>
-        <p className="text-white/40 text-sm mt-1">Review and remove posts that violate community guidelines</p>
+        <h1 className="text-2xl font-black text-[var(--text-color)]">Content Moderation</h1>
+        <p className="text-[var(--text-muted)] text-sm mt-1">Review and remove posts that violate community guidelines</p>
       </div>
 
       {feedback && (
@@ -36,24 +36,24 @@ export default function AdminModeration() {
       )}
 
       <div className="relative max-w-sm mb-6">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
         <input
           type="text"
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search post content..."
-          className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-purple-500/50 transition-all"
+          className="w-full bg-transparent border border-[var(--border-color)]/30 rounded-xl pl-9 pr-4 py-2.5 text-[var(--text-color)] text-sm placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--color-chirp)] focus:ring-1 focus:ring-[var(--color-chirp)] transition-all"
         />
       </div>
 
       <div className="space-y-3">
         {isLoading ? (
-          <div className="flex justify-center py-12"><Loader2 className="animate-spin text-purple-400" size={24} /></div>
+          <div className="flex justify-center py-12"><Loader2 className="animate-spin text-[var(--color-chirp)]" size={24} /></div>
         ) : data?.data?.length === 0 ? (
-          <div className="text-center py-12 text-white/30">No posts found</div>
+          <div className="text-center py-12 text-[var(--text-muted)]">No posts found</div>
         ) : (
           data?.data?.map((tweet: any) => (
-            <div key={tweet.id} className="bg-white/[0.04] border border-white/[0.06] rounded-2xl p-5 flex gap-4">
+            <div key={tweet.id} className="bg-transparent border border-[var(--border-color)]/30 rounded-2xl p-5 flex gap-4 transition-all hover:bg-[var(--hover-bg)]">
               <img
                 src={tweet.user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(tweet.user?.name ?? 'U')}&background=random`}
                 alt={tweet.user?.name}
@@ -61,15 +61,15 @@ export default function AdminModeration() {
               />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-white font-bold text-sm">{tweet.user?.name}</span>
-                  <span className="text-white/30 text-xs">@{tweet.user?.username}</span>
-                  <span className="text-white/20 text-xs">{new Date(tweet.created_at).toLocaleDateString()}</span>
+                  <span className="text-[var(--text-color)] font-bold text-sm">{tweet.user?.name}</span>
+                  <span className="text-[var(--text-muted)] text-xs">@{tweet.user?.username}</span>
+                  <span className="text-[var(--text-muted)] text-xs">{new Date(tweet.created_at).toLocaleDateString()}</span>
                 </div>
-                <p className="text-white/70 text-sm whitespace-pre-wrap">{tweet.content}</p>
+                <p className="text-[var(--text-color)] text-sm whitespace-pre-wrap opacity-90">{tweet.content}</p>
               </div>
               <button
                 onClick={() => setConfirmId(tweet.id)}
-                className="p-2 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all self-start flex-shrink-0"
+                className="p-2 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-all self-start flex-shrink-0"
                 title="Delete post"
               >
                 <Trash2 size={16} />
@@ -80,18 +80,18 @@ export default function AdminModeration() {
       </div>
 
       {confirmId !== null && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="bg-white/[0.04] border border-white/[0.07] rounded-3xl p-8 w-full max-w-md mx-4 shadow-2xl">
-            <h2 className="text-white font-black text-lg mb-2">Delete Post</h2>
-            <p className="text-white/50 text-sm mb-6">Are you sure? This post will be permanently removed.</p>
+        <div className="fixed inset-0 z-50 flex items-start pt-[10vh] justify-center bg-[#242d34]/70 backdrop-blur-sm">
+          <div className="bg-[var(--bg-color)] border border-[var(--border-color)]/30 rounded-2xl p-8 w-full max-w-md mx-4 shadow-2xl">
+            <h2 className="text-[var(--text-color)] font-black text-lg mb-2">Delete Post</h2>
+            <p className="text-[var(--text-muted)] text-sm mb-6">Are you sure? This post will be permanently removed.</p>
             <div className="flex gap-3 justify-end">
-              <button onClick={() => setConfirmId(null)} className="px-5 py-2.5 rounded-xl bg-white/5 text-white/60 hover:bg-white/10 text-sm font-medium transition-all">
+              <button onClick={() => setConfirmId(null)} className="px-5 py-2.5 rounded-full border border-[var(--border-color)]/30 bg-transparent text-[var(--text-color)] hover:bg-[var(--hover-bg)] text-sm font-bold transition-all">
                 Cancel
               </button>
               <button
                 onClick={() => deleteMut.mutate(confirmId)}
                 disabled={deleteMut.isPending}
-                className="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-sm font-bold transition-all active:scale-95 disabled:opacity-50"
+                className="px-5 py-2.5 rounded-full bg-red-600 hover:bg-red-500 text-white text-sm font-bold transition-all active:scale-95 disabled:opacity-50"
               >
                 {deleteMut.isPending ? 'Deleting...' : 'Delete Post'}
               </button>

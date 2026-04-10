@@ -21,41 +21,41 @@ export default function AdminAuditLogs() {
   return (
     <div className="p-8">
       <div className="mb-6">
-        <h1 className="text-2xl font-black text-white">Audit Logs</h1>
-        <p className="text-white/40 text-sm mt-1">Full trail of all admin actions</p>
+        <h1 className="text-2xl font-black text-[var(--text-color)]">Audit Logs</h1>
+        <p className="text-[var(--text-muted)] text-sm mt-1">Full trail of all admin actions</p>
       </div>
 
-      <div className="bg-white/[0.04] border border-white/[0.06] rounded-2xl overflow-hidden">
+      <div className="bg-transparent border border-[var(--border-color)]/30 rounded-2xl overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-white/5">
-              <th className="text-left px-6 py-4 text-white/40 font-medium">Admin</th>
-              <th className="text-left px-6 py-4 text-white/40 font-medium">Action</th>
-              <th className="text-left px-6 py-4 text-white/40 font-medium">Target</th>
-              <th className="text-left px-6 py-4 text-white/40 font-medium">IP</th>
-              <th className="text-left px-6 py-4 text-white/40 font-medium">Time</th>
+            <tr className="border-b border-[var(--border-color)]/30">
+              <th className="text-left px-6 py-4 text-[var(--text-muted)] font-medium">Admin</th>
+              <th className="text-left px-6 py-4 text-[var(--text-muted)] font-medium">Action</th>
+              <th className="text-left px-6 py-4 text-[var(--text-muted)] font-medium">Target</th>
+              <th className="text-left px-6 py-4 text-[var(--text-muted)] font-medium">IP</th>
+              <th className="text-left px-6 py-4 text-[var(--text-muted)] font-medium">Time</th>
             </tr>
           </thead>
           <tbody>
             {isLoading ? (
-              <tr><td colSpan={5} className="text-center py-12"><Loader2 className="animate-spin text-purple-400 mx-auto" size={24} /></td></tr>
+              <tr><td colSpan={5} className="text-center py-12"><Loader2 className="animate-spin text-[var(--color-chirp)] mx-auto" size={24} /></td></tr>
             ) : data?.data?.length === 0 ? (
-              <tr><td colSpan={5} className="text-center py-12 text-white/30">No activity yet</td></tr>
+              <tr><td colSpan={5} className="text-center py-12 text-[var(--text-muted)]">No activity yet</td></tr>
             ) : (
               data?.data?.map((log: any) => (
-                <tr key={log.id} className="border-b border-white/5 hover:bg-white/5 transition-all">
-                  <td className="px-6 py-4 text-white font-medium">{log.admin?.name ?? '—'}</td>
+                <tr key={log.id} className="border-b border-[var(--border-color)]/30 hover:bg-[var(--hover-bg)] transition-all">
+                  <td className="px-6 py-4 text-[var(--text-color)] font-medium">{log.admin?.name ?? '—'}</td>
                   <td className="px-6 py-4">
-                    <span className={`font-mono text-xs font-bold uppercase tracking-wide ${actionColors[log.action] ?? 'text-white/60'}`}>
+                    <span className={`font-mono text-xs font-bold uppercase tracking-wide ${actionColors[log.action] ?? 'text-[var(--text-muted)]'}`}>
                       {log.action.replace(/_/g, ' ')}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-white/50 text-xs">
-                    {log.target_type?.split('\\').pop()} #{log.target_id}
-                    {log.meta?.username && <span className="ml-1 text-white/30">(@{log.meta.username})</span>}
+                  <td className="px-6 py-4 text-[var(--text-muted)] text-xs">
+                    <strong className="text-[var(--text-color)] opacity-80">{log.target_type?.split('\\').pop()}</strong> #{log.target_id}
+                    {log.meta?.username && <span className="ml-1 text-[var(--text-muted)] opacity-60">(@{log.meta.username})</span>}
                   </td>
-                  <td className="px-6 py-4 text-white/30 font-mono text-xs">{log.ip_address ?? '—'}</td>
-                  <td className="px-6 py-4 text-white/30 text-xs">{new Date(log.created_at).toLocaleString()}</td>
+                  <td className="px-6 py-4 text-[var(--text-muted)] font-mono text-xs">{log.ip_address ?? '—'}</td>
+                  <td className="px-6 py-4 text-[var(--text-muted)] opacity-70 text-xs">{new Date(log.created_at).toLocaleString()}</td>
                 </tr>
               ))
             )}

@@ -25,16 +25,16 @@ export default function AdminSidebar() {
   };
 
   return (
-    <aside className="w-64 min-h-screen bg-black border-r border-white/[0.06] flex flex-col">
+    <aside className="w-64 min-h-screen bg-[var(--bg-color)] border-r border-[var(--border-color)]/30 flex flex-col">
       {/* Logo */}
-      <div className="p-6 border-b border-white/5">
+      <div className="p-6 border-b border-[var(--border-color)]/30">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl flex items-center justify-center">
+          <div className="w-10 h-10 bg-[var(--color-chirp)] rounded-xl flex items-center justify-center">
             <ShieldCheck size={20} className="text-white" />
           </div>
           <div>
-            <p className="font-black text-white text-sm">Admin Panel</p>
-            <p className="text-white/40 text-xs flex items-center gap-1">
+            <p className="font-black text-[var(--text-color)] text-sm">Admin Panel</p>
+            <p className="text-[var(--text-muted)] text-xs flex items-center gap-1">
               <Feather size={10} /> Chirp
             </p>
           </div>
@@ -51,8 +51,8 @@ export default function AdminSidebar() {
             className={({ isActive }) =>
               `flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
                 isActive
-                  ? 'bg-purple-500/20 text-purple-400 border border-purple-500/20'
-                  : 'text-white/50 hover:text-white hover:bg-white/5'
+                  ? 'bg-[var(--color-chirp)]/10 text-[var(--color-chirp)] font-bold'
+                  : 'text-[var(--text-muted)] hover:text-[var(--text-color)] hover:bg-[var(--hover-bg)]'
               }`
             }
           >
@@ -63,14 +63,14 @@ export default function AdminSidebar() {
       </nav>
 
       {/* Admin Info */}
-      <div className="p-4 border-t border-white/5">
-        <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 mb-3">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white font-bold text-sm">
+      <div className="p-4 border-t border-[var(--border-color)]/30">
+        <div className="flex items-center gap-3 p-3 rounded-xl bg-[var(--hover-bg)] mb-3 border border-[var(--border-color)]/10">
+          <div className="w-8 h-8 rounded-xl bg-[var(--color-chirp)] flex items-center justify-center text-white font-bold text-sm">
             {admin?.name?.[0]?.toUpperCase() ?? 'A'}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-white text-sm font-bold truncate">{admin?.name ?? 'Admin'}</p>
-            <p className="text-white/40 text-xs capitalize">{admin?.role ?? 'moderator'}</p>
+            <p className="text-[var(--text-color)] text-sm font-bold truncate">{admin?.name ?? 'Admin'}</p>
+            <p className="text-[var(--text-muted)] text-xs capitalize">{admin?.role ?? 'moderator'}</p>
           </div>
         </div>
         <button
