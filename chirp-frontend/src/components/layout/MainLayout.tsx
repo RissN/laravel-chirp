@@ -2,6 +2,7 @@ import { Outlet, Link, useLocation } from 'react-router-dom';
 import { Home, Search, Bell, Mail, Bookmark } from 'lucide-react';
 import Sidebar from './Sidebar';
 import RightPanel from './RightPanel';
+import TweetComposerModal from '../tweet/TweetComposerModal';
 import { useNotificationStore } from '../../store/notificationStore';
 
 export default function MainLayout() {
@@ -21,19 +22,21 @@ export default function MainLayout() {
       <div className="container mx-auto flex max-w-[1300px] justify-center px-2 sm:px-4">
         
         {/* Left Sidebar */}
-        <header className="hidden sm:flex w-20 xl:w-[260px] flex-col border-r border-[var(--border-color)]/30 pb-4 pt-2 px-2 xl:px-4 sticky top-0 h-screen">
+        <header className={`hidden sm:flex w-20 ${location.pathname.startsWith('/messages') ? '' : 'xl:w-[260px] xl:px-4'} flex-col border-r border-[var(--border-color)]/30 pb-4 pt-2 px-2 sticky top-0 h-screen`}>
           <Sidebar />
         </header>
 
         {/* Main Feed */}
-        <main className="flex-1 min-h-screen border-r border-[var(--border-color)]/30 max-w-[640px] w-full pb-16 sm:pb-0 relative">
+        <main className={`flex-1 min-h-screen border-r border-[var(--border-color)]/30 w-full pb-16 sm:pb-0 relative ${location.pathname.startsWith('/messages') ? 'max-w-[1000px]' : 'max-w-[640px]'}`}>
           <Outlet />
         </main>
 
         {/* Right Panel */}
-        <aside className="hidden lg:block w-[340px] pl-6 pr-2 py-3 sticky top-0 h-screen overflow-y-auto hide-scrollbar">
-          <RightPanel />
-        </aside>
+        {!location.pathname.startsWith('/messages') && (
+          <aside className="hidden lg:block w-[340px] pl-6 pr-2 py-3 sticky top-0 h-screen overflow-y-auto hide-scrollbar">
+            <RightPanel />
+          </aside>
+        )}
         
         {/* Mobile Bottom Nav */}
         <nav className="sm:hidden fixed bottom-0 w-full bg-[var(--bg-color)]/90 backdrop-blur-lg border-t border-[var(--border-color)] flex justify-around py-2 px-1 z-50">
@@ -65,6 +68,7 @@ export default function MainLayout() {
           })}
         </nav>
       </div>
+      <TweetComposerModal />
     </div>
   );
 }

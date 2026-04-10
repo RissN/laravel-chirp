@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Image, Smile, Plus } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Image, Smile, Plus, ListTodo, CalendarClock, MapPin } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Avatar from '../ui/Avatar';
 import Button from '../ui/Button';
@@ -8,12 +8,22 @@ import { createTweet, replyToTweet } from '../../api/tweets';
 import { useToast } from '../ui/ToastProvider';
 import api from '../../api/axios';
 
-export default function TweetComposer({ isReply = false, parentId }: { isReply?: boolean, parentId?: number }) {
+interface TweetComposerProps {
+  isReply?: boolean;
+  parentId?: number;
+  isModal?: boolean;
+  onSuccessCallback?: () => void;
+  replyingTo?: string;
+}
+
+export default function TweetComposer({ isReply = false, parentId, isModal = false, onSuccessCallback, replyingTo }: TweetComposerProps) {
   const { user } = useAuthStore();
   const { showToast } = useToast();
   const [content, setContent] = useState('');
   const [images, setImages] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const queryClient = useQueryClient();
 
   const tweetMutation = useMutation({
@@ -26,9 +36,15 @@ export default function TweetComposer({ isReply = false, parentId }: { isReply?:
     onSuccess: () => {
       setContent('');
       setImages([]);
+      setIsExpanded(false);
       queryClient.invalidateQueries({ queryKey: ['timeline'] });
-      if (isReply) queryClient.invalidateQueries({ queryKey: ['replies', parentId] });
+      if (isReply) {
+        queryClient.invalidateQueries({ queryKey: ['replies', parentId] });
+        queryClient.invalidateQueries({ queryKey: ['replies', String(parentId)] });
+        queryClient.invalidateQueries({ queryKey: ['tweet', String(parentId)] });
+      }
       showToast(isReply ? 'Reply sent' : 'Sent!', 'success');
+      if (onSuccessCallback) onSuccessCallback();
     },
     onError: () => {
       showToast('Failed to post tweet', 'error');
@@ -72,6 +88,13 @@ export default function TweetComposer({ isReply = false, parentId }: { isReply?:
     }
   };
 
+  const handleExpandClick = () => {
+    setIsExpanded(true);
+    setTimeout(() => {
+      textareaRef.current?.focus();
+    }, 50);
+  };
+
   const charCount = content.length;
   const isOverLimit = charCount > 280;
   const isNearLimit = charCount >= 260;
@@ -79,15 +102,47 @@ export default function TweetComposer({ isReply = false, parentId }: { isReply?:
 
   if (!user) return null;
 
+  // Collapsed reply bar (only for inline replies, not in modal)
+  const showCollapsed = isReply && !isModal && !isExpanded && content.length === 0;
+
+  if (showCollapsed) {
+    return (
+      <div 
+        className="p-4 border-b border-[var(--border-color)]/30 cursor-text bg-transparent"
+        onClick={handleExpandClick}
+      >
+        <div className="flex items-center gap-4">
+          <Avatar name={user?.name || 'User'} src={user?.avatar} size="md" linkToProfile={false} />
+          <div className="flex-1 min-w-0 flex items-center pt-1">
+            <span className="text-[var(--text-muted)] text-[18px]">Post your reply</span>
+          </div>
+          <button 
+            className="px-6 py-2 rounded-full bg-[var(--text-muted)]/30 text-[var(--text-muted)] text-[15px] font-bold cursor-default"
+            disabled
+          >
+            Reply
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className={`p-4 border-b border-[var(--border-color)]/30 ${isReply ? '' : 'animate-fade-in'}`}>
+    <div className={`p-4 border-b border-[var(--border-color)]/30 ${isReply && !isModal ? '' : isModal ? '' : 'animate-fade-in'}`}>
+      {/* Replying to indicator */}
+      {isReply && replyingTo && !isModal && (
+        <div className="mb-3 ml-14 text-[13px] text-[var(--text-muted)]">
+          Replying to <span className="text-[var(--color-chirp)] hover:underline cursor-pointer">@{replyingTo}</span>
+        </div>
+      )}
       <div className="flex gap-4">
         <Avatar name={user?.name || 'User'} src={user?.avatar} size="md" linkToProfile={false} />
         
         <div className="flex-1 min-w-0">
           <textarea
-            className="w-full bg-transparent border-none text-[18px] text-[var(--text-color)] placeholder:text-[var(--text-muted)] focus:ring-0 resize-none min-h-[50px] py-1 leading-tight outline-none"
-            placeholder={isReply ? "Post your reply" : "What is happening?!"}
+            ref={textareaRef}
+            className="w-full bg-transparent border-none text-[20px] text-[var(--text-color)] placeholder:text-[var(--text-muted)] focus:ring-0 resize-none min-h-[50px] py-1 leading-tight outline-none"
+            placeholder={isReply ? "Post your reply" : "What's happening?"}
             rows={Math.max(1, content.split('\n').length)}
             value={content}
             onChange={(e) => setContent(e.target.value)}
@@ -113,15 +168,42 @@ export default function TweetComposer({ isReply = false, parentId }: { isReply?:
           )}
 
           <div className="flex items-center justify-between mt-3 pt-3 border-t border-[var(--border-color)]/10">
-            <div className="flex items-center -ml-2">
-              <label className="p-2.5 rounded-full text-[var(--color-chirp)] hover:bg-[var(--color-chirp)]/10 cursor-pointer transition-colors group/tool relative">
-                <Image size={20} strokeWidth={2.5} />
+            <div className="flex items-center -ml-2 text-[var(--color-chirp)]">
+              {/* Media */}
+              <label className="p-2.5 rounded-full hover:bg-[var(--color-chirp)]/10 cursor-pointer transition-colors group/tool relative">
+                <Image size={20} strokeWidth={2.2} />
                 <input type="file" multiple accept="image/*" className="hidden" onChange={handleImageChange} disabled={images.length >= 4} />
                 <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-800 text-white text-[10px] rounded opacity-0 group-hover/tool:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">Media</span>
               </label>
-              <button className="p-2.5 rounded-full text-[var(--color-chirp)] hover:bg-[var(--color-chirp)]/10 transition-colors group/tool relative">
-                <Smile size={20} strokeWidth={2.5} />
+
+              {/* GIF */}
+              <button disabled className="p-2.5 rounded-full hover:bg-[var(--color-chirp)]/10 transition-colors group/tool relative opacity-60">
+                <div className="border-[1.5px] border-current rounded-[4px] px-[2px] text-[9px] font-extrabold leading-none h-[18px] flex items-center justify-center tracking-tighter">GIF</div>
+                <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-800 text-white text-[10px] rounded opacity-0 group-hover/tool:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">GIF</span>
+              </button>
+
+              {/* Poll */}
+              <button disabled className="p-2.5 rounded-full hover:bg-[var(--color-chirp)]/10 transition-colors group/tool relative opacity-60">
+                <ListTodo size={20} strokeWidth={2.2} />
+                <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-800 text-white text-[10px] rounded opacity-0 group-hover/tool:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">Poll</span>
+              </button>
+
+              {/* Emoji */}
+              <button className="p-2.5 rounded-full hover:bg-[var(--color-chirp)]/10 transition-colors group/tool relative">
+                <Smile size={20} strokeWidth={2.2} />
                 <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-800 text-white text-[10px] rounded opacity-0 group-hover/tool:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">Emoji</span>
+              </button>
+
+              {/* Schedule */}
+              <button disabled className="p-2.5 rounded-full hover:bg-[var(--color-chirp)]/10 transition-colors group/tool relative opacity-60">
+                <CalendarClock size={20} strokeWidth={2.2} />
+                <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-800 text-white text-[10px] rounded opacity-0 group-hover/tool:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">Schedule</span>
+              </button>
+
+              {/* Location */}
+              <button disabled className="p-2.5 rounded-full hover:bg-[var(--color-chirp)]/10 transition-colors group/tool relative opacity-60">
+                <MapPin size={20} strokeWidth={2.2} />
+                <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-800 text-white text-[10px] rounded opacity-0 group-hover/tool:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">Location</span>
               </button>
             </div>
 

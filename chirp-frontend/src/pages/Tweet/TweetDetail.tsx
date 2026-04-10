@@ -54,7 +54,7 @@ export default function TweetDetail() {
       ) : tweetData?.data ? (
         <>
           <TweetCard tweet={tweetData.data} />
-          <TweetComposer isReply={true} parentId={tweetData.data.id} />
+          <TweetComposer isReply={true} parentId={tweetData.data.id} replyingTo={tweetData.data.user.username} />
           
           <div className="pb-20">
             {repliesStatus === 'pending' ? (

@@ -6,11 +6,11 @@
   --color-chirp-hover: #1a91da;
   --color-accent-secondary: #6366f1;
   
-  --color-dark-bg: #030308;
-  --color-dark-border: #1a1a2e;
-  --color-dark-hover: #121225;
-  --color-dark-card: #0a0a1a;
-  --color-dark-elevated: #16162a;
+  --color-dark-bg: #000000;
+  --color-dark-border: #2f3336;
+  --color-dark-hover: #181818;
+  --color-dark-card: #000000;
+  --color-dark-elevated: #111111;
   
   --color-light-bg: #fdfdfd;
   --color-light-border: #eef2f6;
@@ -51,26 +51,25 @@
 
   .dark {
     --bg-color: var(--color-dark-bg);
-    --text-color: #f1f5f9;
-    --text-muted: #94a3b8;
+    --text-color: #e7e9ea;
+    --text-muted: #71767b;
     --border-color: var(--color-dark-border);
     --hover-bg: var(--color-dark-hover);
     --card-bg: var(--color-dark-card);
     --elevated-bg: var(--color-dark-elevated);
     
     /* Glassmorphism (Dark) */
-    --glass-bg: rgba(10, 10, 26, 0.8);
-    --glass-border: rgba(255, 255, 255, 0.04);
-    --glass-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    --glass-bg: rgba(0, 0, 0, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-shadow: 0 0 0 1px rgba(47, 51, 54, 0.5);
     
     /* Gradients (Dark) */
-    --gradient-subtle: linear-gradient(135deg, rgba(29, 161, 242, 0.08), rgba(99, 102, 241, 0.08));
-    --gradient-mesh: radial-gradient(ellipse at 10% 40%, rgba(29, 161, 242, 0.05) 0%, transparent 40%),
-                     radial-gradient(ellipse at 90% 10%, rgba(99, 102, 241, 0.05) 0%, transparent 40%);
+    --gradient-subtle: linear-gradient(135deg, rgba(29, 161, 242, 0.04), rgba(99, 102, 241, 0.04));
+    --gradient-mesh: none;
     
     /* Glow (Dark) */
-    --glow-chirp: 0 0 30px rgba(29, 161, 242, 0.15);
-    --glow-accent: 0 0 30px rgba(99, 102, 241, 0.15);
+    --glow-chirp: 0 0 20px rgba(29, 161, 242, 0.1);
+    --glow-accent: 0 0 20px rgba(99, 102, 241, 0.1);
   }
 
   body {
