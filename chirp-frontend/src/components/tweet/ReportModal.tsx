@@ -62,7 +62,7 @@ export default function ReportModal({ isOpen, onClose, reportableId, reportableT
       onClose={onClose} 
       title={`Report ${reportableType === 'tweet' ? 'Tweet' : 'Account'}`}
     >
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6 p-4">
         <div className="flex items-start gap-4 p-4 bg-orange-500/10 border border-orange-500/20 rounded-2xl">
           <AlertTriangle className="text-orange-500 flex-shrink-0" size={20} />
           <p className="text-xs text-orange-200/80 leading-relaxed font-medium">

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { Modal } from './Modal';
-import Button from './Button';
+import { AlertTriangle } from 'lucide-react';
 
 interface ConfirmOptions {
   title: string;
@@ -58,6 +58,8 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
+  const isDanger = modalState?.options.variant === 'danger';
+
   return (
     <ModalContext.Provider value={{ confirm }}>
       {children}
@@ -65,27 +67,46 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         <Modal
           isOpen={modalState.isOpen}
           onClose={handleClose}
-          title={modalState.options.title}
+          showCloseButton={false}
+          size="sm"
         >
-          <p className="text-[var(--text-muted)] text-lg mb-8 leading-relaxed">
-            {modalState.options.message}
-          </p>
-          
-          <div className="flex justify-end gap-3 pt-2">
-            <Button
-              variant="ghost"
-              onClick={handleClose}
-              className="px-6"
-            >
-              {modalState.options.cancelLabel}
-            </Button>
-            <Button
-              variant={modalState.options.variant === 'danger' ? 'primary' : 'primary'}
-              onClick={handleConfirm}
-              className={`px-8 ${modalState.options.variant === 'danger' ? 'bg-red-500 hover:bg-red-600' : ''}`}
-            >
-              {modalState.options.confirmLabel}
-            </Button>
+          <div className="p-8 flex flex-col items-center text-center">
+            {/* Icon */}
+            {isDanger && (
+              <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center mb-4">
+                <AlertTriangle size={24} className="text-red-500" />
+              </div>
+            )}
+
+            {/* Title */}
+            <h3 className="text-xl font-extrabold text-[var(--text-color)] mb-2">
+              {modalState.options.title}
+            </h3>
+
+            {/* Message */}
+            <p className="text-[var(--text-muted)] text-sm leading-relaxed mb-8">
+              {modalState.options.message}
+            </p>
+            
+            {/* Actions — stacked full-width buttons like Twitter/X */}
+            <div className="flex flex-col gap-3 w-full">
+              <button
+                onClick={handleConfirm}
+                className={`w-full py-3 px-6 rounded-full font-extrabold text-[15px] transition-all duration-200 cursor-pointer ${
+                  isDanger
+                    ? 'bg-red-500 text-white hover:bg-red-600 active:scale-[0.98]'
+                    : 'bg-[var(--text-color)] text-[var(--bg-color)] hover:opacity-90 active:scale-[0.98]'
+                }`}
+              >
+                {modalState.options.confirmLabel}
+              </button>
+              <button
+                onClick={handleClose}
+                className="w-full py-3 px-6 rounded-full font-extrabold text-[15px] border border-[var(--border-color)] text-[var(--text-color)] bg-transparent hover:bg-[var(--hover-bg)] transition-all duration-200 cursor-pointer active:scale-[0.98]"
+              >
+                {modalState.options.cancelLabel}
+              </button>
+            </div>
           </div>
         </Modal>
       )}

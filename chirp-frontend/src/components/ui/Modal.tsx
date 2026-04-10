@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface ModalProps {
   isOpen: boolean;
@@ -8,6 +9,7 @@ interface ModalProps {
   children: React.ReactNode;
   showCloseButton?: boolean;
   contentClassName?: string;
+  size?: 'sm' | 'md' | 'lg';
 }
 
 export const Modal: React.FC<ModalProps> = ({ 
@@ -16,7 +18,8 @@ export const Modal: React.FC<ModalProps> = ({
   title, 
   children, 
   showCloseButton = true,
-  contentClassName 
+  contentClassName,
+  size = 'md'
 }) => {
   // Prevent scroll when modal is open
   useEffect(() => {
@@ -30,36 +33,56 @@ export const Modal: React.FC<ModalProps> = ({
     };
   }, [isOpen]);
 
-  if (!isOpen) return null;
+  const sizeClasses = {
+    sm: 'max-w-[360px]',
+    md: 'max-w-[600px]',
+    lg: 'max-w-[800px]',
+  };
 
   return (
-    <div className="fixed inset-0 z-[110] flex items-start justify-center pt-[5vh] sm:pt-[10vh] p-4">
-      <div
-        onClick={onClose}
-        className="absolute inset-0 bg-[#242d34]/70"
-      />
-      
-      <div
-        className={`bg-[var(--card-bg)] w-full max-w-[600px] rounded-2xl relative z-10 shadow-xl border border-[var(--border-color)] overflow-hidden ${contentClassName || ''}`}
-      >
-        {(title || showCloseButton) && (
-          <div className="flex items-center justify-between p-4 relative">
-            {showCloseButton && (
-              <button
-                onClick={onClose}
-                className="p-2 -ml-2 hover:bg-[var(--hover-bg)] rounded-full transition-colors text-[var(--text-color)]"
-              >
-                <X size={20} />
-              </button>
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={onClose}
+            className="absolute inset-0 bg-[#242d34]/70 backdrop-blur-sm"
+          />
+          
+          {/* Modal Content */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+            className={`bg-[var(--card-bg)] w-full ${sizeClasses[size]} rounded-2xl relative z-10 shadow-2xl border border-[var(--border-color)] overflow-hidden ${contentClassName || ''}`}
+          >
+            {/* Header */}
+            {(title || showCloseButton) && (
+              <div className="flex items-center gap-3 px-4 py-3 border-b border-[var(--border-color)]/30">
+                {showCloseButton && (
+                  <button
+                    onClick={onClose}
+                    className="p-1.5 hover:bg-[var(--hover-bg)] rounded-full transition-colors text-[var(--text-color)] flex-shrink-0"
+                  >
+                    <X size={20} />
+                  </button>
+                )}
+                {title && <h3 className="text-lg font-extrabold text-[var(--text-color)]">{title}</h3>}
+              </div>
             )}
-            {title && <h3 className="text-xl font-bold text-[var(--text-color)]">{title}</h3>}
-          </div>
-        )}
 
-        <div className="relative">
-          {children}
+            {/* Body */}
+            <div className="relative">
+              {children}
+            </div>
+          </motion.div>
         </div>
-      </div>
-    </div>
+      )}
+    </AnimatePresence>
   );
 };

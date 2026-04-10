@@ -290,7 +290,7 @@ export default function Profile() {
         onClose={() => setIsEditModalOpen(false)}
         title="Edit Profile"
       >
-        <div className="max-h-[70vh] overflow-y-auto px-1 hide-scrollbar">
+        <div className="max-h-[70vh] overflow-y-auto px-4 pb-4 hide-scrollbar">
           {editError && (
              <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 text-red-500 rounded-lg text-sm">
                 {editError}
