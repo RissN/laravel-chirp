@@ -21,6 +21,16 @@ export const toggleFollowUser = async (username: string): Promise<ApiResponse<{i
   return data;
 };
 
+export const getUserFollowers = async (username: string, page = 1): Promise<PaginatedResponse<User>> => {
+  const { data } = await api.get(`/users/${username}/followers?page=${page}`);
+  return data;
+};
+
+export const getUserFollowing = async (username: string, page = 1): Promise<PaginatedResponse<User>> => {
+  const { data } = await api.get(`/users/${username}/following?page=${page}`);
+  return data;
+};
+
 export const updateProfile = async (profileData: any): Promise<ApiResponse<User>> => {
   const { data } = await api.put('/users/profile', profileData);
   return data;

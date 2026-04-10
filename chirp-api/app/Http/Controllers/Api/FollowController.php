@@ -68,9 +68,7 @@ class FollowController extends Controller
     {
         $user = User::where('username', $username)->firstOrFail();
         
-        $followers = User::whereHas('following', function ($q) use ($user) {
-            $q->where('following_id', $user->id)->where('status', 'accepted');
-        })->paginate(20);
+        $followers = $user->followers()->wherePivot('status', 'accepted')->paginate(20);
 
         return UserResource::collection($followers)->additional([
             'success' => true
@@ -81,9 +79,7 @@ class FollowController extends Controller
     {
         $user = User::where('username', $username)->firstOrFail();
         
-        $following = User::whereHas('followers', function ($q) use ($user) {
-            $q->where('follower_id', $user->id)->where('status', 'accepted');
-        })->paginate(20);
+        $following = $user->following()->wherePivot('status', 'accepted')->paginate(20);
 
         return UserResource::collection($following)->additional([
             'success' => true

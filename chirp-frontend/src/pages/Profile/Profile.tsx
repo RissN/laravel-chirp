@@ -15,6 +15,8 @@ import { Modal } from '../../components/ui/Modal';
 import { useAuthStore } from '../../store/authStore';
 import { useToast } from '../../components/ui/ToastProvider';
 
+import FollowListModal from '../../components/profile/FollowListModal';
+
 export default function Profile() {
   const { username } = useParams<{username: string}>();
   const { user: currentUser, setUser } = useAuthStore();
@@ -29,6 +31,9 @@ export default function Profile() {
   const [previewImages, setPreviewImages] = useState({ avatar: '', header_image: '' });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  
+  const [isFollowModalOpen, setIsFollowModalOpen] = useState(false);
+  const [followModalType, setFollowModalType] = useState<'followers' | 'following'>('followers');
 
   const updateMutation = useMutation({
     mutationFn: updateProfile,
@@ -252,8 +257,12 @@ export default function Profile() {
         </div>
 
         <div className="flex gap-4 mt-4 text-sm">
-          <span><b className="text-[var(--text-color)]">{user.following_count || 0}</b> <span className="text-[var(--text-muted)]">Following</span></span>
-          <span><b className="text-[var(--text-color)]">{user.followers_count || 0}</b> <span className="text-[var(--text-muted)]">Followers</span></span>
+          <button onClick={() => { setFollowModalType('following'); setIsFollowModalOpen(true); }} className="hover:underline text-left">
+            <b className="text-[var(--text-color)]">{user.following_count || 0}</b> <span className="text-[var(--text-muted)]">Following</span>
+          </button>
+          <button onClick={() => { setFollowModalType('followers'); setIsFollowModalOpen(true); }} className="hover:underline text-left">
+            <b className="text-[var(--text-color)]">{user.followers_count || 0}</b> <span className="text-[var(--text-muted)]">Followers</span>
+          </button>
         </div>
       </div>
 
@@ -345,6 +354,13 @@ export default function Profile() {
         onClose={() => setIsReportModalOpen(false)}
         reportableId={user.id}
         reportableType="user"
+      />
+      
+      <FollowListModal
+        isOpen={isFollowModalOpen}
+        onClose={() => setIsFollowModalOpen(false)}
+        username={user.username}
+        type={followModalType}
       />
     </div>
   );

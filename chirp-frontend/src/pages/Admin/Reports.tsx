@@ -81,6 +81,35 @@ export default function AdminReports() {
                   <p className="text-white/30 text-xs mt-2">
                     Reported by: @{report.reporter?.username} · Target: {report.reportable_type?.split('\\').pop()} #{report.reportable_id}
                   </p>
+                  
+                  {report.reportable && (
+                    <div className="mt-3 p-3 bg-white/[0.02] border border-white/[0.05] rounded-xl">
+                      <div className="text-[10px] font-bold text-white/40 mb-2 uppercase tracking-wide">Target Details</div>
+                      {report.reportable_type?.includes('User') && (
+                        <div className="flex items-center gap-3">
+                          <img src={report.reportable.avatar || `https://ui-avatars.com/api/?name=${report.reportable.name}&background=random`} alt="" className="w-10 h-10 rounded-full border border-white/10" />
+                          <div>
+                            <div className="text-sm font-bold text-white">{report.reportable.name}</div>
+                            <div className="text-xs text-white/40">@{report.reportable.username}</div>
+                            {report.reportable.bio && <div className="text-xs text-white/60 mt-1 line-clamp-1">{report.reportable.bio}</div>}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {report.reportable_type?.includes('Tweet') && (
+                        <div className="flex items-start gap-3">
+                          <img src={report.reportable.user?.avatar || `https://ui-avatars.com/api/?name=${report.reportable.user?.name || 'Unknown'}&background=random`} alt="" className="w-8 h-8 rounded-full border border-white/10" />
+                          <div className="flex-1 min-w-0">
+                            <div className="text-xs font-bold text-white/70">
+                               {report.reportable.user?.name || 'Unknown'} <span className="text-white/30 font-normal">@{report.reportable.user?.username || 'unknown'}</span>
+                            </div>
+                            <div className="text-sm text-white mt-1 break-words">{report.reportable.content}</div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   {report.admin_note && (
                     <p className="mt-2 text-blue-400/70 text-xs italic">Admin note: {report.admin_note}</p>
                   )}

@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Heart, Repeat2, User as UserIcon, MessageSquare, AtSign, Loader2, Feather } from 'lucide-react';
+import { Heart, Repeat2, User as UserIcon, MessageSquare, AtSign, Loader2, Feather, ShieldAlert, Info } from 'lucide-react';
 import { getNotifications, markNotificationsAsRead } from '../../api/notifications';
 import Avatar from '../../components/ui/Avatar';
 import { formatDistanceToNow } from 'date-fns';
@@ -26,6 +26,8 @@ export default function Notifications() {
       case 'reply': return <MessageSquare className="text-[var(--color-chirp)]" size={24} />;
       case 'mention': return <AtSign className="text-[var(--color-chirp)]" size={24} />;
       case 'quote': return <Feather className="text-[var(--color-chirp)]" size={24} />;
+      case 'account_suspended': return <ShieldAlert className="text-red-500" size={24} />;
+      case 'report_resolved': return <Info className="text-purple-500" size={24} />;
       default: return null;
     }
   };
@@ -39,6 +41,8 @@ export default function Notifications() {
       case 'reply': return <><b>{actorName}</b> replied to your tweet</>;
       case 'mention': return <><b>{actorName}</b> mentioned you in a tweet</>;
       case 'quote': return <><b>{actorName}</b> quoted your tweet</>;
+      case 'account_suspended': return <><b>Chirp Team</b> restricted your account</>;
+      case 'report_resolved': return <><b>Chirp Team</b> updated your report</>;
       default: return <><b>{actorName}</b> interacted with you</>;
     }
   };
@@ -85,14 +89,35 @@ export default function Notifications() {
               </div>
               <div className="flex-1">
                 <div className="flex justify-between items-start mb-2">
-                   <Avatar name={notif.actor?.name} src={notif.actor?.avatar} size="sm" username={notif.actor?.username} />
+                   {notif.type === 'account_suspended' || notif.type === 'report_resolved' ? (
+                     <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-600 to-blue-500 flex items-center justify-center">
+                       <ShieldAlert size={16} className="text-white" />
+                     </div>
+                   ) : (
+                     <Avatar name={notif.actor?.name} src={notif.actor?.avatar} size="sm" username={notif.actor?.username} />
+                   )}
                    <span className="text-xs text-[var(--text-muted)]">{formatDistanceToNow(new Date(notif.created_at))} ago</span>
                 </div>
                 <p className="text-[var(--text-color)]">{renderNotificationText(notif)}</p>
-                {notif.notifiable?.content && (
+                
+                {notif.notifiable?.content && notif.type !== 'account_suspended' && notif.type !== 'report_resolved' && (
                   <p className="text-[var(--text-muted)] text-sm mt-2 line-clamp-2 italic border-l-2 border-[var(--border-color)] pl-3">
                     "{notif.notifiable.content}"
                   </p>
+                )}
+
+                {notif.type === 'account_suspended' && notif.data?.reason && (
+                  <div className="mt-3 p-3 bg-red-500/10 border border-red-500/20 rounded-xl">
+                    <p className="text-red-400 text-sm font-medium">Account Suspended</p>
+                    <p className="text-red-400/80 text-sm mt-1">{notif.data.reason}</p>
+                    {notif.data.until && <p className="text-red-400/60 text-xs mt-2">Until: {notif.data.until}</p>}
+                  </div>
+                )}
+
+                {notif.type === 'report_resolved' && notif.data && (
+                  <div className="mt-3 p-3 bg-white/5 border border-white/10 rounded-xl">
+                    <p className="text-white text-sm">Your recent report has been marked as <b>{notif.data.status}</b>.</p>
+                  </div>
                 )}
               </div>
             </div>

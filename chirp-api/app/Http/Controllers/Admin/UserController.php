@@ -93,7 +93,28 @@ class UserController extends Controller
             'ban_reason' => $request->reason,
             'banned_until' => $bannedUntil,
         ]);
-        $user->tokens()->delete();
+        
+        // Suspended users can still login, so DO NOT delete tokens.
+        // Alert them in-app instead.
+        \App\Models\Notification::create([
+            'user_id' => $user->id,
+            'actor_id' => null, // System
+            'type' => 'account_suspended',
+            'notifiable_type' => User::class,
+            'notifiable_id' => $user->id,
+            'data' => [
+                'reason' => $request->reason,
+                'until' => $bannedUntil ? $bannedUntil->toDateTimeString() : 'permanently'
+            ]
+        ]);
+
+        $notif = \App\Models\Notification::where('notifiable_id', $user->id)
+            ->where('type', 'account_suspended')
+            ->latest()->first();
+
+        if ($notif) {
+            event(new \App\Events\NotificationCreated($notif));
+        }
 
         AuditLog::create([
             'admin_id' => $request->user('admin')->id,

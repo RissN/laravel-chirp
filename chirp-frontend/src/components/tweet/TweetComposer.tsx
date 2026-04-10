@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Avatar from '../ui/Avatar';
 import Button from '../ui/Button';
 import { useAuthStore } from '../../store/authStore';
-import { createTweet } from '../../api/tweets';
+import { createTweet, replyToTweet } from '../../api/tweets';
 import { useToast } from '../ui/ToastProvider';
 import api from '../../api/axios';
 
@@ -17,7 +17,12 @@ export default function TweetComposer({ isReply = false, parentId }: { isReply?:
   const queryClient = useQueryClient();
 
   const tweetMutation = useMutation({
-    mutationFn: (data: {content?: string, media?: string[]}) => createTweet(data),
+    mutationFn: (data: {content?: string, media?: string[]}) => {
+      if (isReply && parentId) {
+        return replyToTweet(parentId, data);
+      }
+      return createTweet(data);
+    },
     onSuccess: () => {
       setContent('');
       setImages([]);

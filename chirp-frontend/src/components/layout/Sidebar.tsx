@@ -61,9 +61,12 @@ export default function Sidebar() {
                   size={24} 
                   className={`transition-transform duration-200 group-hover:scale-110 ${isActive ? 'text-[var(--color-chirp)]' : ''}`}
                   strokeWidth={isActive ? 2.5 : 2}
+                  fill={isActive && !['Explore', 'Settings'].includes(link.name) ? 'currentColor' : 'none'}
                 />
-                {link.badge && link.badge > 0 && (
-                  <span className="notification-badge" />
+                {link.badge !== undefined && link.badge > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 bg-[var(--color-chirp)] text-white text-[10px] font-bold rounded-full border-2 border-[var(--bg-color)] min-w-[18px] h-[18px] flex items-center justify-center">
+                    {link.badge > 99 ? '99+' : link.badge}
+                  </span>
                 )}
               </div>
               <span className={`hidden xl:block text-[15px] ${isActive ? 'text-[var(--text-color)] font-bold' : ''}`}>

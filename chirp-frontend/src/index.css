@@ -168,9 +168,9 @@
 
 /* ========== Primary Action Button (Post) ========== */
 .btn-gradient {
-  background: #ffffff;
-  color: #000000;
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  background: #0f172a;
+  color: #ffffff;
+  border: 1px solid transparent;
   font-weight: 800;
   border-radius: 9999px;
   cursor: pointer;
@@ -185,6 +185,12 @@
 }
 
 .btn-gradient:hover {
+  background: #1e293b;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px -10px rgba(0, 0, 0, 0.2);
+}
+
+.dark .btn-gradient:hover {
   background: #f1f5f9;
   transform: translateY(-1px);
   box-shadow: 0 10px 20px -10px rgba(255, 255, 255, 0.2);
