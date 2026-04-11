@@ -25,7 +25,7 @@ export default function AdminSidebar() {
   };
 
   return (
-    <aside className="w-64 min-h-screen bg-[var(--bg-color)] border-r border-[var(--border-color)]/30 flex flex-col">
+    <aside className="w-64 sticky top-0 h-screen bg-[var(--bg-color)] border-r border-[var(--border-color)]/30 flex flex-col">
       {/* Logo */}
       <div className="p-6 border-b border-[var(--border-color)]/30">
         <div className="flex items-center gap-3">

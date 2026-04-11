@@ -41,6 +41,7 @@ export default function AdminReports() {
   const [punishDuration, setPunishDuration] = useState(168); // default 7d in hours
   const [deleteTweetChecked, setDeleteTweetChecked] = useState(false);
   const [confirmDangerous, setConfirmDangerous] = useState(false);
+  const [punishmentDone, setPunishmentDone] = useState('');
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin-reports', statusFilter],
@@ -61,7 +62,9 @@ export default function AdminReports() {
   const banMut = useMutation({
     mutationFn: ({ id, reason, duration }: { id: number; reason: string; duration?: number }) => banUser(id, reason, duration),
     onSuccess: (r) => {
-      setActionFeedback(r.message || 'User has been banned.');
+      const msg = r.message || 'User has been banned.';
+      setActionFeedback(msg);
+      setPunishmentDone(msg);
       setTimeout(() => setActionFeedback(''), 4000);
     },
     onError: (err: any) => {
@@ -73,7 +76,9 @@ export default function AdminReports() {
   const suspendMut = useMutation({
     mutationFn: ({ id, reason, duration }: { id: number; reason: string; duration?: number }) => suspendUser(id, reason, duration),
     onSuccess: (r) => {
-      setActionFeedback(r.message || 'User has been suspended.');
+      const msg = r.message || 'User has been suspended.';
+      setActionFeedback(msg);
+      setPunishmentDone(msg);
       setTimeout(() => setActionFeedback(''), 4000);
     },
     onError: (err: any) => {
@@ -86,6 +91,7 @@ export default function AdminReports() {
     mutationFn: (id: number) => adminDeleteTweet(id),
     onSuccess: () => {
       setActionFeedback('Tweet has been deleted.');
+      setPunishmentDone(prev => prev ? prev + ' Tweet deleted.' : 'Tweet has been deleted.');
       setTimeout(() => setActionFeedback(''), 4000);
     },
     onError: (err: any) => {
@@ -97,7 +103,9 @@ export default function AdminReports() {
   const deleteAccountMut = useMutation({
     mutationFn: (id: number) => deleteUser(id),
     onSuccess: (r) => {
-      setActionFeedback(r.message || 'Account has been deleted.');
+      const msg = r.message || 'Account has been deleted.';
+      setActionFeedback(msg);
+      setPunishmentDone(msg);
       setTimeout(() => setActionFeedback(''), 4000);
     },
     onError: (err: any) => {
@@ -213,7 +221,7 @@ export default function AdminReports() {
                 </div>
                 {report.status === 'pending' && (
                   <button
-                    onClick={() => { setModal({ report }); setForm({ status: 'resolved', admin_note: '' }); setActionFeedback(''); setPunishment('none'); setPunishDuration(168); setDeleteTweetChecked(false); setConfirmDangerous(false); }}
+                    onClick={() => { setModal({ report }); setForm({ status: 'resolved', admin_note: '' }); setActionFeedback(''); setPunishment('none'); setPunishDuration(168); setDeleteTweetChecked(false); setConfirmDangerous(false); setPunishmentDone(''); }}
                     className="flex items-center gap-2 px-4 py-2 rounded-full border border-[var(--border-color)]/30 text-[var(--color-chirp)] hover:bg-[var(--hover-bg)] text-sm font-bold transition-all flex-shrink-0"
                   >
                     <CheckCircle size={15} /> Review
@@ -350,142 +358,159 @@ export default function AdminReports() {
                       <Shield size={12} /> Take Action
                     </div>
 
-                    {/* Action Type Cards */}
-                    <div className="grid grid-cols-2 gap-2">
-                      {PUNISHMENT_CARDS.map((card) => {
-                        const isSelected = punishment === card.type;
-                        const Icon = card.icon;
-                        return (
-                          <button
-                            key={card.type}
-                            onClick={() => { setPunishment(card.type); setConfirmDangerous(false); }}
-                            className={`relative p-3 rounded-xl border text-left transition-all duration-200 ${
-                              isSelected
-                                ? `${card.bg} ring-1 ring-current ${card.color} bg-opacity-10`
-                                : `border-[var(--border-color)]/15 hover:bg-[var(--hover-bg)]/50 text-[var(--text-muted)]`
-                            }`}
-                          >
-                            {isSelected && (
-                              <div className="absolute top-2 right-2">
-                                <Check size={14} className={card.color} />
-                              </div>
-                            )}
-                            <Icon size={16} className={isSelected ? card.color : 'text-[var(--text-muted)]'} />
-                            <div className={`text-xs font-bold mt-1.5 ${isSelected ? card.color : 'text-[var(--text-color)]'}`}>{card.label}</div>
-                            <div className="text-[10px] text-[var(--text-muted)] mt-0.5 leading-tight">{card.desc}</div>
-                          </button>
-                        );
-                      })}
-                    </div>
-
-                    {/* Duration Selector - only for suspend/ban */}
-                    <AnimatePresence>
-                      {needsDuration && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.2 }}
-                          className="overflow-hidden"
-                        >
-                          <div className="bg-[var(--hover-bg)]/30 border border-[var(--border-color)]/15 rounded-xl p-3 space-y-2">
-                            <label className="text-xs font-medium text-[var(--text-muted)]">Duration</label>
-                            <div className="flex flex-wrap gap-1.5">
-                              {DURATION_OPTIONS.map((opt) => (
-                                <button
-                                  key={opt.hours}
-                                  onClick={() => setPunishDuration(opt.hours)}
-                                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                                    punishDuration === opt.hours
-                                      ? punishment === 'ban'
-                                        ? 'bg-red-500/20 text-red-400 ring-1 ring-red-500/30'
-                                        : 'bg-orange-500/20 text-orange-400 ring-1 ring-orange-500/30'
-                                      : 'bg-[var(--hover-bg)]/50 text-[var(--text-muted)] hover:bg-[var(--hover-bg)] hover:text-[var(--text-color)]'
-                                  }`}
-                                >
-                                  {opt.label}
-                                </button>
-                              ))}
-                            </div>
+                    {punishmentDone ? (
+                      /* ── Success State ── */
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="bg-green-500/[0.07] border border-green-500/20 rounded-xl p-5"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
+                            <CheckCircle size={20} className="text-green-400" />
                           </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-
-                    {/* Delete Tweet checkbox - only for tweet reports */}
-                    {isTweetReport && report?.reportable?.id && punishment !== 'none' && (
-                      <label className="flex items-center gap-3 px-3 py-2.5 bg-[var(--hover-bg)]/30 border border-[var(--border-color)]/15 rounded-xl cursor-pointer hover:bg-[var(--hover-bg)]/50 transition-all">
-                        <div className={`w-4 h-4 rounded border flex items-center justify-center transition-all flex-shrink-0 ${
-                          deleteTweetChecked 
-                            ? 'bg-red-500 border-red-500' 
-                            : 'border-[var(--border-color)]/40 bg-transparent'
-                        }`}
-                          onClick={(e) => { e.preventDefault(); setDeleteTweetChecked(!deleteTweetChecked); }}
-                        >
-                          {deleteTweetChecked && <Check size={10} className="text-white" />}
+                          <div>
+                            <div className="text-sm font-bold text-green-400">Action Completed</div>
+                            <div className="text-xs text-green-400/70 mt-0.5">{punishmentDone}</div>
+                          </div>
                         </div>
-                        <div>
-                          <span className="text-xs font-bold text-[var(--text-color)]">Also delete this tweet</span>
-                          <span className="text-[10px] text-[var(--text-muted)] ml-1">Remove the reported content</span>
+                      </motion.div>
+                    ) : (
+                      /* ── Action Picker ── */
+                      <>
+                        {/* Action Type Cards */}
+                        <div className="grid grid-cols-2 gap-2">
+                          {PUNISHMENT_CARDS.map((card) => {
+                            const isSelected = punishment === card.type;
+                            const Icon = card.icon;
+                            return (
+                              <button
+                                key={card.type}
+                                onClick={() => { setPunishment(card.type); setConfirmDangerous(false); }}
+                                className={`relative p-3 rounded-xl border text-left transition-all duration-200 ${
+                                  isSelected
+                                    ? `${card.bg} ring-1 ring-current ${card.color} bg-opacity-10`
+                                    : `border-[var(--border-color)]/15 hover:bg-[var(--hover-bg)]/50 text-[var(--text-muted)]`
+                                }`}
+                              >
+                                {isSelected && (
+                                  <div className="absolute top-2 right-2">
+                                    <Check size={14} className={card.color} />
+                                  </div>
+                                )}
+                                <Icon size={16} className={isSelected ? card.color : 'text-[var(--text-muted)]'} />
+                                <div className={`text-xs font-bold mt-1.5 ${isSelected ? card.color : 'text-[var(--text-color)]'}`}>{card.label}</div>
+                                <div className="text-[10px] text-[var(--text-muted)] mt-0.5 leading-tight">{card.desc}</div>
+                              </button>
+                            );
+                          })}
                         </div>
-                      </label>
-                    )}
 
-                    {/* Execute Button */}
-                    {punishment !== 'none' && (
-                      <div className="space-y-2">
-                        {/* Action Feedback - right here where user can see it */}
+                        {/* Duration Selector - only for suspend/ban */}
                         <AnimatePresence>
-                          {actionFeedback && (
+                          {needsDuration && (
                             <motion.div
-                              initial={{ opacity: 0, y: -6 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: -6 }}
-                              className={`p-3 border rounded-xl text-xs font-bold flex items-center gap-2 ${
-                                actionFeedback.startsWith('❌')
-                                  ? 'bg-red-500/10 border-red-500/20 text-red-400'
-                                  : 'bg-green-500/10 border-green-500/20 text-green-400'
-                              }`}
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: 'auto' }}
+                              exit={{ opacity: 0, height: 0 }}
+                              transition={{ duration: 0.2 }}
+                              className="overflow-hidden"
                             >
-                              {!actionFeedback.startsWith('❌') && <CheckCircle size={14} />}
-                              {actionFeedback}
+                              <div className="bg-[var(--hover-bg)]/30 border border-[var(--border-color)]/15 rounded-xl p-3 space-y-2">
+                                <label className="text-xs font-medium text-[var(--text-muted)]">Duration</label>
+                                <div className="flex flex-wrap gap-1.5">
+                                  {DURATION_OPTIONS.map((opt) => (
+                                    <button
+                                      key={opt.hours}
+                                      onClick={() => setPunishDuration(opt.hours)}
+                                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                                        punishDuration === opt.hours
+                                          ? punishment === 'ban'
+                                            ? 'bg-red-500/20 text-red-400 ring-1 ring-red-500/30'
+                                            : 'bg-orange-500/20 text-orange-400 ring-1 ring-orange-500/30'
+                                          : 'bg-[var(--hover-bg)]/50 text-[var(--text-muted)] hover:bg-[var(--hover-bg)] hover:text-[var(--text-color)]'
+                                      }`}
+                                    >
+                                      {opt.label}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
                             </motion.div>
                           )}
                         </AnimatePresence>
 
-                        {(punishment === 'ban' || punishment === 'delete_account') && (
-                          <label className="flex items-center gap-2 cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={confirmDangerous}
-                              onChange={(e) => setConfirmDangerous(e.target.checked)}
-                              className="accent-red-500 w-3.5 h-3.5"
-                            />
-                            <span className="text-[11px] text-red-400 font-medium">
-                              I confirm this {punishment === 'delete_account' ? 'permanent deletion' : 'ban action'}
-                            </span>
+                        {/* Delete Tweet checkbox - only for tweet reports */}
+                        {isTweetReport && report?.reportable?.id && punishment !== 'none' && (
+                          <label className="flex items-center gap-3 px-3 py-2.5 bg-[var(--hover-bg)]/30 border border-[var(--border-color)]/15 rounded-xl cursor-pointer hover:bg-[var(--hover-bg)]/50 transition-all">
+                            <div className={`w-4 h-4 rounded border flex items-center justify-center transition-all flex-shrink-0 ${
+                              deleteTweetChecked 
+                                ? 'bg-red-500 border-red-500' 
+                                : 'border-[var(--border-color)]/40 bg-transparent'
+                            }`}
+                              onClick={(e) => { e.preventDefault(); setDeleteTweetChecked(!deleteTweetChecked); }}
+                            >
+                              {deleteTweetChecked && <Check size={10} className="text-white" />}
+                            </div>
+                            <div>
+                              <span className="text-xs font-bold text-[var(--text-color)]">Also delete this tweet</span>
+                              <span className="text-[10px] text-[var(--text-muted)] ml-1">Remove the reported content</span>
+                            </div>
                           </label>
                         )}
-                        <button
-                          onClick={handleExecutePunishment}
-                          disabled={isPunishmentPending || ((punishment === 'ban' || punishment === 'delete_account') && !confirmDangerous)}
-                          className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all disabled:opacity-40 ${
-                            punishment === 'suspend'
-                              ? 'bg-orange-500/15 text-orange-400 hover:bg-orange-500/25'
-                              : 'bg-red-500/15 text-red-400 hover:bg-red-500/25'
-                          }`}
-                        >
-                          {isPunishmentPending ? (
-                            <><Loader2 size={14} className="animate-spin" /> Executing...</>
-                          ) : (
-                            <>
-                              {punishment === 'suspend' && <><Clock size={14} /> Suspend {DURATION_OPTIONS.find(d => d.hours === punishDuration)?.label}</>}
-                              {punishment === 'ban' && <><Ban size={14} /> Ban {DURATION_OPTIONS.find(d => d.hours === punishDuration)?.label}</>}
-                              {punishment === 'delete_account' && <><UserX size={14} /> Delete Account Permanently</>}
-                            </>
-                          )}
-                        </button>
-                      </div>
+
+                        {/* Execute Button */}
+                        {punishment !== 'none' && (
+                          <div className="space-y-2">
+                            {/* Action Feedback for errors */}
+                            <AnimatePresence>
+                              {actionFeedback && actionFeedback.startsWith('❌') && (
+                                <motion.div
+                                  initial={{ opacity: 0, y: -6 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  exit={{ opacity: 0, y: -6 }}
+                                  className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-xs font-bold flex items-center gap-2"
+                                >
+                                  {actionFeedback}
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+
+                            {(punishment === 'ban' || punishment === 'delete_account') && (
+                              <label className="flex items-center gap-2 cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={confirmDangerous}
+                                  onChange={(e) => setConfirmDangerous(e.target.checked)}
+                                  className="accent-red-500 w-3.5 h-3.5"
+                                />
+                                <span className="text-[11px] text-red-400 font-medium">
+                                  I confirm this {punishment === 'delete_account' ? 'permanent deletion' : 'ban action'}
+                                </span>
+                              </label>
+                            )}
+                            <button
+                              onClick={handleExecutePunishment}
+                              disabled={isPunishmentPending || ((punishment === 'ban' || punishment === 'delete_account') && !confirmDangerous)}
+                              className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all disabled:opacity-40 ${
+                                punishment === 'suspend'
+                                  ? 'bg-orange-500/15 text-orange-400 hover:bg-orange-500/25'
+                                  : 'bg-red-500/15 text-red-400 hover:bg-red-500/25'
+                              }`}
+                            >
+                              {isPunishmentPending ? (
+                                <><Loader2 size={14} className="animate-spin" /> Executing...</>
+                              ) : (
+                                <>
+                                  {punishment === 'suspend' && <><Clock size={14} /> Suspend {DURATION_OPTIONS.find(d => d.hours === punishDuration)?.label}</>}
+                                  {punishment === 'ban' && <><Ban size={14} /> Ban {DURATION_OPTIONS.find(d => d.hours === punishDuration)?.label}</>}
+                                  {punishment === 'delete_account' && <><UserX size={14} /> Delete Account Permanently</>}
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 )}
