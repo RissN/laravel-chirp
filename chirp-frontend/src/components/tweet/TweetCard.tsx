@@ -202,7 +202,7 @@ export default function TweetCard({ tweet }: { tweet: Tweet }) {
             </div>
           </div>
 
-          <p className="text-[var(--text-color)] mt-0.5 text-[15px] leading-relaxed whitespace-pre-wrap word-break">
+          <p className="text-[var(--text-color)] mt-0.5 text-[15px] leading-relaxed whitespace-pre-wrap" style={{ overflowWrap: 'break-word', wordBreak: 'break-word' }}>
             {displayTweet.content}
           </p>
 

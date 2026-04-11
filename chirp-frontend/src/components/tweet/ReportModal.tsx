@@ -92,7 +92,7 @@ export default function ReportModal({ isOpen, onClose, reportableId, reportableT
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   className="fixed inset-0 z-10" 
-                  onClick={() => setIsDropdownOpen(false)} 
+                  onClick={(e) => { e.stopPropagation(); setIsDropdownOpen(false); }} 
                 />
                 <motion.div 
                   initial={{ opacity: 0, y: -10, scale: 0.95 }}
@@ -105,7 +105,8 @@ export default function ReportModal({ isOpen, onClose, reportableId, reportableT
                       <button
                         key={r}
                         type="button"
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation();
                           setReason(r);
                           setIsDropdownOpen(false);
                         }}
