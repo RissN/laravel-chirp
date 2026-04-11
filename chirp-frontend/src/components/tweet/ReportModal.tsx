@@ -65,7 +65,7 @@ export default function ReportModal({ isOpen, onClose, reportableId, reportableT
       <form onSubmit={handleSubmit} className="space-y-6 p-4">
         <div className="flex items-start gap-4 p-4 bg-orange-500/10 border border-orange-500/20 rounded-2xl">
           <AlertTriangle className="text-orange-500 flex-shrink-0" size={20} />
-          <p className="text-xs text-orange-200/80 leading-relaxed font-medium">
+          <p className="text-xs text-[var(--text-color)] opacity-80 leading-relaxed font-medium">
             Reports are anonymous and strictly confidential. If the item violates our community 
             guidelines, our moderation team will take appropriate action.
           </p>
@@ -78,10 +78,10 @@ export default function ReportModal({ isOpen, onClose, reportableId, reportableT
           <button
             type="button"
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="w-full bg-[var(--hover-bg)] border border-[var(--border-color)]/20 rounded-xl px-4 py-3 text-[var(--text-color)] flex items-center justify-between hover:bg-[var(--hover-bg)]/50 transition-all font-medium"
+            className="w-full bg-[var(--bg-color)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-[var(--text-color)] flex items-center justify-between hover:bg-[var(--hover-bg)] transition-all font-medium shadow-sm"
           >
             <span className="text-sm">{reason}</span>
-            <ChevronDown size={18} className={`text-white/30 transform transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+            <ChevronDown size={18} className={`text-[var(--text-muted)] transform transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
           </button>
 
           <AnimatePresence>
@@ -98,7 +98,7 @@ export default function ReportModal({ isOpen, onClose, reportableId, reportableT
                   initial={{ opacity: 0, y: -10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                  className="absolute top-full left-0 right-0 mt-2 bg-black border border-white/[0.08] rounded-xl overflow-hidden shadow-2xl z-20 backdrop-blur-2xl"
+                  className="absolute top-full left-0 right-0 mt-2 bg-[var(--bg-color)] border border-[var(--border-color)] rounded-xl overflow-hidden shadow-2xl z-20"
                 >
                   <div className="max-h-60 overflow-y-auto hide-scrollbar">
                     {REASONS.map((r) => (
@@ -110,8 +110,8 @@ export default function ReportModal({ isOpen, onClose, reportableId, reportableT
                           setReason(r);
                           setIsDropdownOpen(false);
                         }}
-                        className={`w-full text-left px-4 py-3 text-sm transition-colors hover:bg-white/10 ${
-                          reason === r ? 'text-[var(--color-chirp)] bg-white/[0.05]' : 'text-white/70'
+                        className={`w-full text-left px-4 py-3 text-sm transition-colors hover:bg-[var(--hover-bg)] ${
+                          reason === r ? 'text-[var(--color-chirp)] bg-[var(--color-chirp)]/10 font-bold' : 'text-[var(--text-color)]'
                         }`}
                       >
                         {r}
@@ -129,7 +129,7 @@ export default function ReportModal({ isOpen, onClose, reportableId, reportableT
             Additional details (Optional)
           </label>
           <textarea
-            className="w-full bg-[var(--hover-bg)] border border-[var(--border-color)]/20 rounded-xl px-4 py-3 text-[var(--text-color)] focus:bg-[var(--bg-color)] focus:border-[var(--color-chirp)] focus:ring-1 focus:ring-[var(--color-chirp)] focus:outline-none transition resize-none text-sm placeholder:text-white/20"
+            className="w-full bg-[var(--bg-color)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-[var(--text-color)] focus:border-[var(--color-chirp)] focus:ring-1 focus:ring-[var(--color-chirp)] focus:outline-none transition resize-none text-sm placeholder:text-[var(--text-muted)] shadow-sm"
             rows={4}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -141,9 +141,8 @@ export default function ReportModal({ isOpen, onClose, reportableId, reportableT
           <Button variant="ghost" type="button" onClick={onClose} className="px-6">Cancel</Button>
           <Button 
             type="submit" 
-            variant="primary" 
             isLoading={mutation.isPending}
-            className="px-8 shadow-xl shadow-blue-500/10"
+            className="btn-gradient px-8 text-white border-0 hover:opacity-90 shadow-xl shadow-[var(--color-chirp)]/20 active:scale-95"
           >
             Submit Report
           </Button>

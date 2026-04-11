@@ -138,7 +138,7 @@ export default function Register() {
           />
           
           <div className="flex justify-center pt-4">
-            <Button type="submit" size="lg" isLoading={isLoading} className="px-16 shadow-md hover:shadow-lg">
+            <Button type="submit" size="lg" isLoading={isLoading} className="btn-gradient px-16 text-white border-0 shadow-md hover:opacity-90 hover:shadow-[var(--color-chirp)]/20">
               Create account
             </Button>
           </div>
