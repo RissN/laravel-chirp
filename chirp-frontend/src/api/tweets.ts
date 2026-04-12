@@ -22,6 +22,18 @@ export const getTimeline = async (page = 1): Promise<PaginatedResponse<Tweet>> =
 };
 
 /**
+ * Mengambil feed "For You" — tweet populer dari seluruh platform.
+ * Diurutkan berdasarkan engagement (likes + retweets + views).
+ *
+ * @param page - Nomor halaman untuk pagination (default: 1)
+ * @returns Promise berisi daftar tweet populer
+ */
+export const getForYouTimeline = async (page = 1): Promise<PaginatedResponse<Tweet>> => {
+  const { data } = await api.get(`/tweets/for-you?page=${page}`);
+  return data;
+};
+
+/**
  * Mengambil tweet dari halaman Explore.
  * Menampilkan tweet populer dari seluruh platform.
  *

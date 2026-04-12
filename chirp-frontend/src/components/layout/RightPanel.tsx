@@ -4,13 +4,11 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getTrending } from '../../api/search';
 import { getSuggestedUsers, toggleFollowUser } from '../../api/users';
-import { useAuthStore } from '../../store/authStore';
 import Avatar from '../ui/Avatar';
 
 export default function RightPanel() {
   const [query, setQuery] = useState('');
   const navigate = useNavigate();
-  const { user } = useAuthStore();
   const queryClient = useQueryClient();
 
   const { data: trending } = useQuery({
@@ -69,9 +67,9 @@ export default function RightPanel() {
 
   return (
     <div className="space-y-4 pb-8">
-      {/* Search Bar */}
-      <div className="sticky top-0 bg-[var(--bg-color)]/80 backdrop-blur-md pt-1 pb-3 z-30">
-        <div className="relative group">
+      {/* Search Bar — aligned with Home tabs */}
+      <div className="sticky top-0 bg-[var(--bg-color)]/80 backdrop-blur-md z-30 flex items-center border-b border-[var(--border-color)]" style={{ height: '53px' }}>
+        <div className="relative group w-full">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
             <Search size={17} className="text-[var(--text-muted)] group-focus-within:text-[var(--color-chirp)] transition-colors duration-200" strokeWidth={2.5} />
           </div>
@@ -80,35 +78,11 @@ export default function RightPanel() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleSearch}
-            className="block w-full pl-11 pr-4 py-3 bg-[var(--hover-bg)]/50 border border-transparent rounded-2xl text-[14px] text-[var(--text-color)] placeholder:text-[var(--text-muted)] focus:bg-[var(--bg-color)] focus:border-[var(--color-chirp)]/50 focus:ring-4 focus:ring-[var(--color-chirp)]/5 transition-all duration-300 outline-none"
-            placeholder="Search Chirp"
+            className="block w-full pl-11 pr-4 py-2.5 bg-[var(--hover-bg)]/50 border border-transparent rounded-full text-[14px] text-[var(--text-color)] placeholder:text-[var(--text-muted)] focus:bg-[var(--bg-color)] focus:border-[var(--color-chirp)]/50 focus:ring-4 focus:ring-[var(--color-chirp)]/5 transition-all duration-300 outline-none"
+            placeholder="Search"
           />
         </div>
       </div>
-
-      {/* Quick Stats */}
-      {user && (
-        <div className="glass-card p-5 animate-fade-in-up">
-          <h3 className="text-[11px] font-extrabold text-[var(--text-muted)] uppercase tracking-widest mb-4 flex items-center gap-2">
-            <TrendingUp size={14} className="text-[var(--color-chirp)]" />
-            Your Activity
-          </h3>
-          <div className="grid grid-cols-3 gap-2">
-            <div className="text-center p-3 rounded-2xl bg-[var(--hover-bg)]/40 transition-all duration-300 hover:bg-[var(--hover-bg)] group cursor-default border border-transparent hover:border-[var(--border-color)]/10">
-              <p className="text-[18px] font-black text-[var(--text-color)] group-hover:scale-110 transition-transform">{user.tweets_count || 0}</p>
-              <p className="text-[10px] text-[var(--text-muted)] font-bold mt-1">Posts</p>
-            </div>
-            <div className="text-center p-3 rounded-2xl bg-[var(--hover-bg)]/40 transition-all duration-300 hover:bg-[var(--hover-bg)] group cursor-default border border-transparent hover:border-[var(--border-color)]/10">
-              <p className="text-[18px] font-black text-[var(--text-color)] group-hover:scale-110 transition-transform">{user.followers_count || 0}</p>
-              <p className="text-[10px] text-[var(--text-muted)] font-bold mt-1">Followers</p>
-            </div>
-            <div className="text-center p-3 rounded-2xl bg-[var(--hover-bg)]/40 transition-all duration-300 hover:bg-[var(--hover-bg)] group cursor-default border border-transparent hover:border-[var(--border-color)]/10">
-              <p className="text-[18px] font-black text-[var(--text-color)] group-hover:scale-110 transition-transform">{user.following_count || 0}</p>
-              <p className="text-[10px] text-[var(--text-muted)] font-bold mt-1">Following</p>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Trending */}
       <div className="glass-card overflow-hidden animate-fade-in-up stagger-1">

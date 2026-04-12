@@ -28,6 +28,7 @@ Route::middleware(['auth:sanctum', 'throttle:300,1'])->group(function () {
 
     // Tweet Routes
     Route::get('/tweets', [TweetController::class, 'index']); // Following timeline
+    Route::get('/tweets/for-you', [TweetController::class, 'forYou']); // For You timeline
     Route::get('/tweets/explore', [TweetController::class, 'explore']); // Explore
     Route::post('/tweets', [TweetController::class, 'store']); // Create
     Route::get('/tweets/{tweet}', [TweetController::class, 'show']); // Detail

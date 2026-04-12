@@ -33,7 +33,7 @@ export default function MainLayout() {
 
         {/* Right Panel */}
         {!location.pathname.startsWith('/messages') && (
-          <aside className="hidden lg:block w-[340px] pl-6 pr-2 py-3 sticky top-0 h-screen overflow-y-auto hide-scrollbar">
+          <aside className="hidden lg:block w-[340px] pl-6 pr-2 pb-3 sticky top-0 h-screen overflow-y-auto hide-scrollbar">
             <RightPanel />
           </aside>
         )}

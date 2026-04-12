@@ -52,6 +52,40 @@ class TweetController extends Controller
     }
 
     /**
+     * Menampilkan feed "For You".
+     *
+     * Mengambil tweet populer dari seluruh platform, diurutkan berdasarkan
+     * skor engagement (likes + retweets + views) dengan prioritas pada
+     * konten terbaru (7 hari terakhir). Tidak bergantung pada daftar following.
+     *
+     * @param  Request  $request  Request HTTP
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     */
+    public function forYou(Request $request)
+    {
+        $tweets = Tweet::with(['user', 'parent.user', 'originalTweet.user'])
+            ->whereIn('tweet_type', ['tweet', 'quote'])
+            ->where('created_at', '>=', now()->subDays(7))
+            ->orderByRaw('(likes_count + retweets_count + views_count) DESC')
+            ->latest()
+            ->paginate(20);
+
+        // If not enough recent tweets, backfill with older popular ones
+        if ($tweets->total() < 20) {
+            $tweets = Tweet::with(['user', 'parent.user', 'originalTweet.user'])
+                ->whereIn('tweet_type', ['tweet', 'quote'])
+                ->orderByRaw('(likes_count + retweets_count + views_count) DESC')
+                ->latest()
+                ->paginate(20);
+        }
+
+        return TweetResource::collection($tweets)->additional([
+            'success' => true,
+            'message' => 'For You timeline retrieved successfully',
+        ]);
+    }
+
+    /**
      * Menampilkan halaman Explore.
      *
      * Mengambil seluruh tweet publik, diurutkan berdasarkan popularitas

@@ -1,20 +1,30 @@
-import { Fragment } from 'react';
+import { Fragment, useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
-import { getTimeline } from '../../api/tweets';
+import { getTimeline, getForYouTimeline } from '../../api/tweets';
 import TweetComposer from '../../components/tweet/TweetComposer';
 import TweetCard from '../../components/tweet/TweetCard';
 
 
-export default function Home() {
+type TabType = 'for-you' | 'following';
 
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    status
-  } = useInfiniteQuery({
+export default function Home() {
+  const [activeTab, setActiveTab] = useState<TabType>('for-you');
+
+  const forYouQuery = useInfiniteQuery({
+    queryKey: ['timeline-for-you'],
+    queryFn: ({ pageParam = 1 }) => getForYouTimeline(pageParam as number),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.meta.current_page < lastPage.meta.last_page) {
+        return lastPage.meta.current_page + 1;
+      }
+      return undefined;
+    },
+    enabled: activeTab === 'for-you',
+  });
+
+  const followingQuery = useInfiniteQuery({
     queryKey: ['timeline'],
     queryFn: ({ pageParam = 1 }) => getTimeline(pageParam as number),
     initialPageParam: 1,
@@ -23,8 +33,12 @@ export default function Home() {
         return lastPage.meta.current_page + 1;
       }
       return undefined;
-    }
+    },
+    enabled: activeTab === 'following',
   });
+
+  const activeQuery = activeTab === 'for-you' ? forYouQuery : followingQuery;
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } = activeQuery;
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const bottom = e.currentTarget.scrollHeight - e.currentTarget.scrollTop === e.currentTarget.clientHeight;
@@ -38,11 +52,24 @@ export default function Home() {
       className="h-screen overflow-y-auto hide-scrollbar animate-fade-in" 
       onScroll={handleScroll}
     >
-      {/* Header Sticky */}
+      {/* Twitter-style Tab Header */}
       <div className="sticky-header">
-        <h1 className="h-lg p-4 text-[var(--text-color)] cursor-pointer tracking-tight">
-          Home
-        </h1>
+        <div className="home-tabs">
+          <button
+            className={`home-tab ${activeTab === 'for-you' ? 'home-tab-active' : ''}`}
+            onClick={() => setActiveTab('for-you')}
+          >
+            <span className="home-tab-label">For you</span>
+            {activeTab === 'for-you' && <div className="home-tab-indicator" />}
+          </button>
+          <button
+            className={`home-tab ${activeTab === 'following' ? 'home-tab-active' : ''}`}
+            onClick={() => setActiveTab('following')}
+          >
+            <span className="home-tab-label">Following</span>
+            {activeTab === 'following' && <div className="home-tab-indicator" />}
+          </button>
+        </div>
       </div>
 
       <TweetComposer />
@@ -79,7 +106,10 @@ export default function Home() {
             
             {data.pages[0].data.length === 0 && (
               <div className="p-8 text-center text-[var(--text-muted)]">
-                Welcome to Chirp! Start following people to see tweets here.
+                {activeTab === 'following' 
+                  ? 'Welcome to Chirp! Start following people to see tweets here.'
+                  : 'No popular tweets yet. Be the first to post!'
+                }
               </div>
             )}
           </>

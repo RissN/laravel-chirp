@@ -119,6 +119,66 @@
   opacity: 0.98;
 }
 
+/* ========== Home Tabs (Twitter-style) ========== */
+.home-tabs {
+  display: flex;
+  width: 100%;
+}
+
+.home-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 16px 0;
+  cursor: pointer;
+  background: none;
+  border: none;
+  transition: background-color 0.2s ease;
+  font-family: inherit;
+}
+
+.home-tab:hover {
+  background-color: var(--hover-bg);
+}
+
+.home-tab-label {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: color 0.2s ease, font-weight 0.2s ease;
+  user-select: none;
+}
+
+.home-tab-active .home-tab-label {
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.home-tab-indicator {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 56px;
+  height: 4px;
+  background: var(--color-chirp);
+  border-radius: 9999px;
+  animation: tabIndicatorIn 0.2s ease-out forwards;
+}
+
+@keyframes tabIndicatorIn {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+  to {
+    width: 56px;
+    opacity: 1;
+  }
+}
+
 /* ========== Glassmorphism Utilities ========== */
 .glass-card {
   background: var(--card-bg);
