@@ -68,7 +68,7 @@ export default function RightPanel() {
   return (
     <div className="space-y-4 pb-8">
       {/* Search Bar — aligned with Home tabs */}
-      <div className="sticky top-0 bg-[var(--bg-color)]/80 backdrop-blur-md z-30 flex items-center border-b border-[var(--border-color)]" style={{ height: '53px' }}>
+      <div className="sticky top-0 bg-[var(--bg-color)]/80 backdrop-blur-md z-30 flex items-center" style={{ height: '53px' }}>
         <div className="relative group w-full">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
             <Search size={17} className="text-[var(--text-muted)] group-focus-within:text-[var(--color-chirp)] transition-colors duration-200" strokeWidth={2.5} />
@@ -78,7 +78,7 @@ export default function RightPanel() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleSearch}
-            className="block w-full pl-11 pr-4 py-2.5 bg-[var(--hover-bg)]/50 border border-transparent rounded-full text-[14px] text-[var(--text-color)] placeholder:text-[var(--text-muted)] focus:bg-[var(--bg-color)] focus:border-[var(--color-chirp)]/50 focus:ring-4 focus:ring-[var(--color-chirp)]/5 transition-all duration-300 outline-none"
+            className="block w-full pl-11 pr-4 py-2.5 bg-[var(--bg-color)] border border-[var(--border-color)] rounded-full text-[14px] text-[var(--text-color)] placeholder:text-[var(--text-muted)] focus:border-[var(--color-chirp)]/50 focus:ring-4 focus:ring-[var(--color-chirp)]/5 transition-all duration-300 outline-none"
             placeholder="Search"
           />
         </div>

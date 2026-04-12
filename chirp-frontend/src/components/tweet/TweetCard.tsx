@@ -219,7 +219,7 @@ export default function TweetCard({ tweet }: { tweet: Tweet }) {
   return (
     <article 
       onClick={handleNavigate}
-      className="border-b border-[var(--border-color)]/30 p-4 hover:bg-[var(--hover-bg)]/30 transition-all duration-300 cursor-pointer group/tweet relative"
+      className="border-b border-[var(--border-color)] p-4 hover:bg-[var(--hover-bg)]/30 transition-all duration-300 cursor-pointer group/tweet relative"
     >
       {/* Retweet Indicator */}
       {isRetweet && repUser && (

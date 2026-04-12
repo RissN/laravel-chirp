@@ -12,8 +12,8 @@
   --color-dark-card: #000000;
   --color-dark-elevated: #111111;
   
-  --color-light-bg: #fdfdfd;
-  --color-light-border: #eef2f6;
+  --color-light-bg: #FFFFFF;
+  --color-light-border: #dadce0;
   --color-light-hover: #f1f5f9;
   --color-light-card: #ffffff;
   --color-light-elevated: #ffffff;
@@ -41,8 +41,7 @@
     --gradient-accent: linear-gradient(135deg, #1da1f2, #6366f1);
     --gradient-accent-hover: linear-gradient(135deg, #1a91da, #4f46e5);
     --gradient-subtle: linear-gradient(135deg, rgba(29, 161, 242, 0.05), rgba(99, 102, 241, 0.05));
-    --gradient-mesh: radial-gradient(ellipse at 20% 50%, rgba(29, 161, 242, 0.04) 0%, transparent 50%),
-                     radial-gradient(ellipse at 80% 20%, rgba(99, 102, 241, 0.04) 0%, transparent 50%);
+    --gradient-mesh: none;
     
     /* Glow */
     --glow-chirp: 0 0 20px rgba(29, 161, 242, 0.15);

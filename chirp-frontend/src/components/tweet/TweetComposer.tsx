@@ -152,7 +152,7 @@ export default function TweetComposer({ isReply = false, parentId, isModal = fal
   if (showCollapsed) {
     return (
       <div 
-        className="p-4 border-b border-[var(--border-color)]/30 cursor-text bg-transparent"
+        className="p-4 border-b border-[var(--border-color)] cursor-text bg-transparent"
         onClick={handleExpandClick}
       >
         <div className="flex items-center gap-4">
@@ -172,7 +172,7 @@ export default function TweetComposer({ isReply = false, parentId, isModal = fal
   }
 
   return (
-    <div className={`p-4 border-b border-[var(--border-color)]/30 ${isReply && !isModal ? '' : isModal ? '' : 'animate-fade-in'}`}>
+    <div className={`p-4 border-b border-[var(--border-color)] ${isReply && !isModal ? '' : isModal ? '' : 'animate-fade-in'}`}>
       {/* Replying to indicator */}
       {isReply && replyingTo && !isModal && (
         <div className="mb-3 ml-14 text-[13px] text-[var(--text-muted)]">
