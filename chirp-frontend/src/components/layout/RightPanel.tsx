@@ -1,15 +1,50 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Search, TrendingUp, UserPlus, Loader2 } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getTrending } from '../../api/search';
+import { getTrending, searchAll } from '../../api/search';
 import { getSuggestedUsers, toggleFollowUser } from '../../api/users';
 import Avatar from '../ui/Avatar';
 
 export default function RightPanel() {
   const [query, setQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const [isFocused, setIsFocused] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
+  // Debounce search query — wait 300ms after user stops typing
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(query.trim());
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setIsFocused(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Live search query
+  const { data: searchResults, isLoading: searchLoading } = useQuery({
+    queryKey: ['live-search', debouncedQuery],
+    queryFn: () => searchAll(debouncedQuery),
+    enabled: debouncedQuery.length >= 2,
+    staleTime: 1000 * 30,
+  });
+
+  const showDropdown = isFocused && query.trim().length >= 2;
+  const hasUsers = searchResults?.data?.users && searchResults.data.users.length > 0;
+  const hasTweets = searchResults?.data?.tweets && searchResults.data.tweets.length > 0;
+  const hasResults = hasUsers || hasTweets;
 
   const { data: trending } = useQuery({
     queryKey: ['trending'],
@@ -61,14 +96,21 @@ export default function RightPanel() {
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && query.trim()) {
+      setIsFocused(false);
       navigate(`/explore?q=${encodeURIComponent(query.trim())}`);
     }
+  };
+
+  const handleResultClick = (path: string) => {
+    setIsFocused(false);
+    setQuery('');
+    navigate(path);
   };
 
   return (
     <div className="space-y-4 pb-8">
       {/* Search Bar — aligned with Home tabs */}
-      <div className="sticky top-0 bg-[var(--bg-color)]/80 backdrop-blur-md z-30 flex items-center" style={{ height: '53px' }}>
+      <div ref={searchRef} className="sticky top-0 bg-[var(--bg-color)]/80 backdrop-blur-md z-30 flex items-center relative" style={{ height: '53px' }}>
         <div className="relative group w-full">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
             <Search size={17} className="text-[var(--text-muted)] group-focus-within:text-[var(--color-chirp)] transition-colors duration-200" strokeWidth={2.5} />
@@ -78,10 +120,79 @@ export default function RightPanel() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleSearch}
+            onFocus={() => setIsFocused(true)}
             className="block w-full pl-11 pr-4 py-2.5 bg-[var(--bg-color)] border border-[var(--border-color)] rounded-full text-[14px] text-[var(--text-color)] placeholder:text-[var(--text-muted)] focus:border-[var(--color-chirp)]/50 focus:ring-4 focus:ring-[var(--color-chirp)]/5 transition-all duration-300 outline-none"
             placeholder="Search"
           />
         </div>
+
+        {/* Live Search Dropdown */}
+        {showDropdown && (
+          <div className="absolute top-full left-0 right-0 mt-1 bg-[var(--bg-color)] border border-[var(--border-color)] rounded-2xl shadow-xl overflow-hidden z-50 max-h-[480px] overflow-y-auto">
+            {searchLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="animate-spin text-[var(--color-chirp)]" size={22} />
+              </div>
+            ) : !hasResults ? (
+              <div className="px-5 py-6 text-center">
+                <p className="text-[var(--text-muted)] text-[14px]">No results for "<span className="text-[var(--text-color)] font-bold">{query}</span>"</p>
+              </div>
+            ) : (
+              <>
+                {/* Users Section */}
+                {hasUsers && (
+                  <div>
+                    <p className="px-4 pt-3 pb-2 text-[12px] font-bold text-[var(--text-muted)] uppercase tracking-wider">People</p>
+                    {searchResults!.data.users.slice(0, 5).map((user: any) => (
+                      <div
+                        key={user.id}
+                        onClick={() => handleResultClick(`/${user.username}`)}
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-[var(--hover-bg)] cursor-pointer transition-colors"
+                      >
+                        <Avatar name={user.name} src={user.avatar} size="sm" linkToProfile={false} />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-[14px] text-[var(--text-color)] truncate">{user.name}</p>
+                          <p className="text-[12px] text-[var(--text-muted)] truncate">@{user.username}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Tweets Section */}
+                {hasTweets && (
+                  <div className={hasUsers ? 'border-t border-[var(--border-color)]' : ''}>
+                    <p className="px-4 pt-3 pb-2 text-[12px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Posts</p>
+                    {searchResults!.data.tweets.slice(0, 5).map((tweet: any) => (
+                      <div
+                        key={tweet.id}
+                        onClick={() => handleResultClick(`/tweet/${tweet.id}`)}
+                        className="flex items-start gap-3 px-4 py-3 hover:bg-[var(--hover-bg)] cursor-pointer transition-colors"
+                      >
+                        <Avatar name={tweet.user?.name || 'User'} src={tweet.user?.avatar} size="sm" linkToProfile={false} />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-bold text-[13px] text-[var(--text-color)] truncate">{tweet.user?.name}</span>
+                            <span className="text-[12px] text-[var(--text-muted)]">@{tweet.user?.username}</span>
+                          </div>
+                          <p className="text-[13px] text-[var(--text-color)] mt-0.5 line-clamp-2 leading-snug">{tweet.content}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* View All Results */}
+                <div
+                  onClick={() => handleResultClick(`/explore?q=${encodeURIComponent(query.trim())}`)}
+                  className="px-4 py-3 text-[13px] font-bold text-[var(--color-chirp)] hover:bg-[var(--hover-bg)] cursor-pointer transition-colors border-t border-[var(--border-color)] text-center"
+                >
+                  View all results for "{query.trim()}"
+                </div>
+              </>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Trending */}
