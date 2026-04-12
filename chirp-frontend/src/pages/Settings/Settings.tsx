@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { updateSettings } from '../../api/users';
 import { useAuthStore } from '../../store/authStore';
 import { useToast } from '../../components/ui/ToastProvider';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
+import { CheckCircle2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Settings() {
   const { user, setUser } = useAuthStore();
@@ -17,6 +19,13 @@ export default function Settings() {
     new_password_confirmation: ''
   });
   const [error, setError] = useState('');
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  useEffect(() => {
+    if (user?.email && form.email !== user.email && !form.email) {
+      setForm(prev => ({ ...prev, email: user.email }));
+    }
+  }, [user]);
 
   const settingsMutation = useMutation({
     mutationFn: updateSettings,
@@ -29,7 +38,8 @@ export default function Settings() {
         new_password_confirmation: '' 
       }));
       setError('');
-      showToast('Settings updated successfully!', 'success');
+      setIsSuccess(true);
+      setTimeout(() => setIsSuccess(false), 3000);
     },
     onError: (err: any) => {
       const msg = err.response?.data?.message || 'Failed to update settings';
@@ -110,7 +120,29 @@ export default function Settings() {
           </div>
 
           <div className="pt-4 flex justify-end">
-            <Button type="submit" isLoading={settingsMutation.isPending}>Save Changes</Button>
+            <AnimatePresence mode="popLayout">
+              {isSuccess ? (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8, y: 10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  className="px-6 py-2.5 bg-green-500/10 text-green-500 border border-green-500/20 rounded-full font-bold flex items-center gap-2"
+                >
+                  <CheckCircle2 size={20} />
+                  Saved Successfully
+                </motion.div>
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                >
+                  <Button type="submit" isLoading={settingsMutation.isPending} className="btn-gradient px-8 text-white border-0 shadow-lg active:scale-95">
+                    Save Changes
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </form>
       </div>

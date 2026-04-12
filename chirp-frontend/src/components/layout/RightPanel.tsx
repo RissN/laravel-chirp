@@ -20,13 +20,44 @@ export default function RightPanel() {
 
   const { data: suggestions, isLoading: suggestionsLoading } = useQuery({
     queryKey: ['suggestions'],
-    queryFn: getSuggestedUsers
+    queryFn: getSuggestedUsers,
+    staleTime: 1000 * 60 * 5, // 5 minutes — prevent aggressive refetching
+    refetchOnWindowFocus: false,
   });
 
   const followMutation = useMutation({
     mutationFn: (username: string) => toggleFollowUser(username),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['suggestions'] });
+    onMutate: async (username) => {
+      // Cancel ongoing refetches so they don't overwrite our optimistic update
+      await queryClient.cancelQueries({ queryKey: ['suggestions'] });
+
+      // Snapshot current cache for rollback
+      const previousSuggestions = queryClient.getQueryData(['suggestions']);
+
+      // Optimistically update the cache: mark user as followed
+      queryClient.setQueryData(['suggestions'], (old: any) => {
+        if (!old?.data) return old;
+        return {
+          ...old,
+          data: old.data.map((u: any) =>
+            u.username === username ? { ...u, _optimisticFollowed: true } : u
+          )
+        };
+      });
+
+      return { previousSuggestions };
+    },
+    onError: (_err, _username, context) => {
+      // Rollback cache on error
+      if (context?.previousSuggestions) {
+        queryClient.setQueryData(['suggestions'], context.previousSuggestions);
+      }
+    },
+    onSettled: () => {
+      // Refetch after a delay to let the backend settle
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['suggestions'] });
+      }, 2000);
     }
   });
 
@@ -139,13 +170,22 @@ export default function RightPanel() {
                   </Link>
                   <p className="text-[12px] text-[var(--text-muted)] truncate font-medium">@{suggestedUser.username}</p>
                 </div>
-                <button
-                  onClick={() => followMutation.mutate(suggestedUser.username)}
-                  disabled={followMutation.isPending}
-                  className="px-4 py-1.5 text-[12px] font-black rounded-full bg-[var(--text-color)] text-[var(--bg-color)] hover:opacity-90 transition-all active:scale-95 whitespace-nowrap"
-                >
-                  Follow
-                </button>
+                {suggestedUser._optimisticFollowed ? (
+                  <button
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                    className="px-4 py-1.5 text-[12px] font-black rounded-full border border-[var(--border-color)]/50 text-[var(--text-color)] transition-all whitespace-nowrap opacity-80 cursor-default"
+                  >
+                    Following
+                  </button>
+                ) : (
+                  <button
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); followMutation.mutate(suggestedUser.username); }}
+                    disabled={followMutation.isPending && followMutation.variables === suggestedUser.username}
+                    className="px-4 py-1.5 text-[12px] font-black rounded-full bg-[var(--text-color)] text-[var(--bg-color)] hover:opacity-90 transition-all active:scale-95 whitespace-nowrap disabled:opacity-50"
+                  >
+                    Follow
+                  </button>
+                )}
               </div>
             ))
           ) : (
