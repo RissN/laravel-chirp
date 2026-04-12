@@ -266,7 +266,7 @@ class MassDataSeeder extends Seeder
                 'email_verified_at' => $now,
                 'password' => $hashedPassword,
                 'bio' => fake()->optional(0.7)->sentence(fake()->numberBetween(4, 12)),
-                'avatar' => 'https://ui-avatars.com/api/?name=' . urlencode($name) . '&background=' . fake()->hexColor() . '&color=fff&size=200',
+                'avatar' => 'https://ui-avatars.com/api/?name=' . urlencode($name) . '&background=random&size=200',
                 'header_image' => 'https://picsum.photos/seed/' . Str::random(10) . '/600/200',
                 'location' => fake()->optional(0.6)->city(),
                 'website' => fake()->optional(0.3)->url(),
