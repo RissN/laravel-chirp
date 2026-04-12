@@ -17,201 +17,204 @@ class MassDataSeeder extends Seeder
 {
     /**
      * Realistic tweet content pool — varied topics, tones, lengths.
+     * Many templates include #hashtags for discoverability.
      */
     private array $tweetTemplates = [
         // Tech & Dev
-        "Just deployed my first app to production 🚀 The feeling is unreal!",
-        "Anyone else think that debugging is just detective work with extra steps? 🕵️",
-        "Hot take: tabs > spaces. Fight me.",
-        "Learning Rust has been the best decision of my career so far 🦀",
-        "Why does every JS framework need its own state management solution? 😩",
-        "Just discovered CSS container queries and my mind is blown 🤯",
-        "The best code is the code you never have to write.",
-        "Pair programming is underrated. Just solved a 3-day bug in 20 minutes with a colleague.",
-        "Docker makes everything easier until it doesn't 🐳",
-        "Today I mass-deleted 2000 lines of dead code. It felt therapeutic. 🧹",
-        "TypeScript saved me from another runtime error today. Thank the types gods. 🙏",
-        "My terminal prompt is more customized than my living room at this point.",
-        "PSA: Please write documentation. Future you will thank present you.",
-        "Just spent 4 hours on a bug that was a missing semicolon. Classic.",
-        "The best part about open source? The community. The worst part? The issues tab.",
-        "AI pair programming is changing how I code. It's like having a really smart rubber duck. 🦆",
-        "Remember when we thought 640KB of RAM ought to be enough for anybody? Good times.",
-        "The cloud is just someone else's computer. Never forget.",
-        "Git blame: the passive-aggressive way to find out who broke production.",
-        "Sometimes the best architecture is no architecture at all. Keep it simple.",
+        "Just deployed my first app to production 🚀 The feeling is unreal! #coding #webdev",
+        "Anyone else think that debugging is just detective work with extra steps? 🕵️ #developer",
+        "Hot take: tabs > spaces. Fight me. #programming",
+        "Learning Rust has been the best decision of my career so far 🦀 #rustlang #coding",
+        "Why does every JS framework need its own state management solution? 😩 #javascript #react",
+        "Just discovered CSS container queries and my mind is blown 🤯 #css #frontend",
+        "The best code is the code you never have to write. #cleancode",
+        "Pair programming is underrated. Just solved a 3-day bug in 20 minutes with a colleague. #agile",
+        "Docker makes everything easier until it doesn't 🐳 #docker #devops",
+        "Today I mass-deleted 2000 lines of dead code. It felt therapeutic. 🧹 #refactoring",
+        "TypeScript saved me from another runtime error today. Thank the types gods. 🙏 #typescript",
+        "My terminal prompt is more customized than my living room at this point. #linux #terminal",
+        "PSA: Please write documentation. Future you will thank present you. #docs #bestpractices",
+        "Just spent 4 hours on a bug that was a missing semicolon. Classic. #debugging",
+        "The best part about open source? The community. The worst part? The issues tab. #opensource",
+        "AI pair programming is changing how I code. It's like having a really smart rubber duck. 🦆 #AI #coding",
+        "Remember when we thought 640KB of RAM ought to be enough for anybody? Good times. #tech",
+        "The cloud is just someone else's computer. Never forget. #cloud #devops",
+        "Git blame: the passive-aggressive way to find out who broke production. #git #programming",
+        "Sometimes the best architecture is no architecture at all. Keep it simple. #KISS #engineering",
+        "Laravel makes backend development a joy 🎉 #laravel #php #webdev",
+        "React 19 concurrent features are a game changer for UI performance 🔥 #react #frontend",
         
         // Life & Thoughts
-        "Morning coffee hits different when you don't have any meetings 🔥☕",
-        "Nothing beats a quiet evening with a good book and rain outside 🌧️📖",
-        "Took a walk today without my phone. Highly recommend disconnecting sometimes. 🌿",
-        "Gratitude post: I'm grateful for the people who still text first. You're the real ones. 💛",
-        "Reminder: It's okay to rest. You're not a machine.",
-        "Just watched the sunset from my balcony and everything felt right for a moment. 🌅",
-        "The older I get, the more I value my peace over everything else.",
-        "Small progress is still progress. Don't discount your little wins. ✨",
-        "Adulting is basically just googling how to do things you were never taught.",
-        "Life update: I've been cooking more at home and honestly? I'm becoming a chef. 👨‍🍳",
-        "Mental health check: how are you REALLY doing today? 💙",
-        "The secret to happiness is lowering your expectations just enough.",
-        "I'm at the age where staying up past 10pm feels like a rebellion.",
-        "Unpopular opinion: Mondays aren't bad. Your job might be, though.",
-        "3 things I wish I knew at 20: 1) Save money 2) Trust fewer people 3) Sleep more",
-        "Just organized my entire desk and I feel like a completely new person.",
-        "Self-care isn't selfish. Read that again.",
-        "Journaling has changed my life more than any app ever could. 📓",
-        "The gym at 6am crowd is a different breed of human. Respect. 💪",
-        "Plot twist: the main character energy was inside you all along.",
+        "Morning coffee hits different when you don't have any meetings 🔥☕ #morningvibes",
+        "Nothing beats a quiet evening with a good book and rain outside 🌧️📖 #reading #chill",
+        "Took a walk today without my phone. Highly recommend disconnecting sometimes. 🌿 #digital detox",
+        "Gratitude post: I'm grateful for the people who still text first. You're the real ones. 💛 #grateful",
+        "Reminder: It's okay to rest. You're not a machine. #selfcare",
+        "Just watched the sunset from my balcony and everything felt right for a moment. 🌅 #sunset",
+        "The older I get, the more I value my peace over everything else. #peace #growth",
+        "Small progress is still progress. Don't discount your little wins. ✨ #motivation",
+        "Adulting is basically just googling how to do things you were never taught. #adulting",
+        "Life update: I've been cooking more at home and honestly? I'm becoming a chef. 👨‍🍳 #homecooking",
+        "Mental health check: how are you REALLY doing today? 💙 #mentalhealth",
+        "The secret to happiness is lowering your expectations just enough. #lifelessons",
+        "I'm at the age where staying up past 10pm feels like a rebellion. #sleeplife",
+        "Unpopular opinion: Mondays aren't bad. Your job might be, though. #monday",
+        "3 things I wish I knew at 20: 1) Save money 2) Trust fewer people 3) Sleep more #advice",
+        "Just organized my entire desk and I feel like a completely new person. #organization",
+        "Self-care isn't selfish. Read that again. #selfcare #wellness",
+        "Journaling has changed my life more than any app ever could. 📓 #journaling",
+        "The gym at 6am crowd is a different breed of human. Respect. 💪 #fitness #gym",
+        "Plot twist: the main character energy was inside you all along. #maincharacter",
 
         // Humor
-        "My WiFi went down for 5 minutes so I had to talk to my family. They seem like nice people. 📡",
-        "I'm not lazy, I'm on energy-saving mode. 🔋",
-        "My bank account and I are in a long-distance relationship. We've lost touch. 💸",
-        "Autocorrect is my worst enema. I mean enemy.",
-        "I told my cat about my problems. She meowed and walked away. Fair enough. 🐱",
-        "Pro tip: If you respond to every email with 'per my last email,' people stop emailing you. 📧",
-        "My cooking skill ranges from 'microwave wizard' to 'slightly burnt toast.'",
-        "I don't need anger management. I need people to stop making me angry.",
-        "The fridge sees me more than my friends do at this point. 🧊",
-        "I'm fluent in three languages: English, sarcasm, and profanity.",
-        "My bed and I have a special relationship. We're perfect for each other. 🛏️",
-        "If procrastination was an Olympic sport, I'd compete tomorrow.",
-        "I put the 'pro' in procrastination. And the 'crastination.' All of it, really.",
-        "Dating in 2026 is just two people staring at their phones in the same room.",
-        "My spirit animal is a sloth on a Monday morning. 🦥",
+        "My WiFi went down for 5 minutes so I had to talk to my family. They seem like nice people. 📡 #wifi",
+        "I'm not lazy, I'm on energy-saving mode. 🔋 #relatable",
+        "My bank account and I are in a long-distance relationship. We've lost touch. 💸 #broke",
+        "Autocorrect is my worst enema. I mean enemy. #autocorrect",
+        "I told my cat about my problems. She meowed and walked away. Fair enough. 🐱 #catlife",
+        "Pro tip: If you respond to every email with 'per my last email,' people stop emailing you. 📧 #workhacks",
+        "My cooking skill ranges from 'microwave wizard' to 'slightly burnt toast.' #cooking",
+        "I don't need anger management. I need people to stop making me angry. #mood",
+        "The fridge sees me more than my friends do at this point. 🧊 #snacking",
+        "I'm fluent in three languages: English, sarcasm, and profanity. #humor",
+        "My bed and I have a special relationship. We're perfect for each other. 🛏️ #sleep",
+        "If procrastination was an Olympic sport, I'd compete tomorrow. #procrastination",
+        "I put the 'pro' in procrastination. And the 'crastination.' All of it, really. #productivity",
+        "Dating in 2026 is just two people staring at their phones in the same room. #dating",
+        "My spirit animal is a sloth on a Monday morning. 🦥 #sloths",
 
         // Opinions & Culture
-        "Just finished watching that new series everyone's talking about. No spoilers but... WOW. 🎬",
-        "The best music is the music that takes you back to a specific memory. 🎵",
-        "Hot take: movie remakes are never as good as the originals. Change my mind.",
-        "Reading physical books >> reading on a screen. The smell alone is worth it. 📚",
-        "Podcasts have replaced my need for small talk. I feel informed AND antisocial.",
-        "Street food >>> fancy restaurants. I will die on this hill. 🌮",
-        "The fact that we have access to all human knowledge on our phones and use it for memes... iconic.",
-        "Vinyl records are making a comeback and I'm here for it. 🎶",
-        "Language learning apps really said 'your streak is more important than your degree.'",
-        "Photography tip: the best camera is the one you have with you. 📸",
-        "Just tried that viral recipe. It was... mid. Very mid. 😐",
-        "Classical music slaps and I'm tired of pretending it doesn't. 🎻",
-        "The golden age of television is NOW. So much good content. Too little time.",
-        "Board game nights > going out. This is the hill I will die on. 🎲",
-        "Watched a documentary about space last night and now I feel extremely small.",
+        "Just finished watching that new series everyone's talking about. No spoilers but... WOW. 🎬 #tvshows",
+        "The best music is the music that takes you back to a specific memory. 🎵 #music #nostalgia",
+        "Hot take: movie remakes are never as good as the originals. Change my mind. #movies",
+        "Reading physical books >> reading on a screen. The smell alone is worth it. 📚 #bookworm",
+        "Podcasts have replaced my need for small talk. I feel informed AND antisocial. #podcasts",
+        "Street food >>> fancy restaurants. I will die on this hill. 🌮 #streetfood #foodie",
+        "The fact that we have access to all human knowledge on our phones and use it for memes... iconic. #internet",
+        "Vinyl records are making a comeback and I'm here for it. 🎶 #vinyl #music",
+        "Language learning apps really said 'your streak is more important than your degree.' #duolingo",
+        "Photography tip: the best camera is the one you have with you. 📸 #photography",
+        "Just tried that viral recipe. It was... mid. Very mid. 😐 #viral #foodie",
+        "Classical music slaps and I'm tired of pretending it doesn't. 🎻 #classicalmusic",
+        "The golden age of television is NOW. So much good content. Too little time. #streaming",
+        "Board game nights > going out. This is the hill I will die on. 🎲 #boardgames",
+        "Watched a documentary about space last night and now I feel extremely small. #space #universe",
         
         // Motivation & Hustle
-        "Another day, another opportunity to be 1% better than yesterday. 📈",
-        "Consistency beats talent when talent doesn't show up. Keep grinding.",
-        "Your comfort zone is nice, but nothing grows there. Step out. 🌱",
-        "Stop waiting for the perfect moment. Start now. Adjust later.",
-        "Work in silence. Let your results make the noise. 🤫",
-        "Three years ago I couldn't have imagined being where I am today. Trust the process.",
-        "Every expert was once a beginner. Keep going. 🎯",
-        "The only competition that matters is with yourself yesterday.",
-        "Discipline > motivation. Motivation fades. Discipline stays.",
-        "Your network is your net worth. Invest in genuine relationships. 🤝",
-        "Not every day will be productive. That's okay. Rest is part of the process.",
-        "Dream big. Start small. Act now. 💡",
-        "The best time to start was yesterday. The second best time is now.",
-        "Embrace failure. It's not the opposite of success — it's part of it.",
-        "Invest in yourself. It's the one investment that always pays off. 📊",
+        "Another day, another opportunity to be 1% better than yesterday. 📈 #grind #growth",
+        "Consistency beats talent when talent doesn't show up. Keep grinding. #consistency",
+        "Your comfort zone is nice, but nothing grows there. Step out. 🌱 #growthmindset",
+        "Stop waiting for the perfect moment. Start now. Adjust later. #justdoit",
+        "Work in silence. Let your results make the noise. 🤫 #hustle",
+        "Three years ago I couldn't have imagined being where I am today. Trust the process. #trusttheprocess",
+        "Every expert was once a beginner. Keep going. 🎯 #neverquit",
+        "The only competition that matters is with yourself yesterday. #selfimprovement",
+        "Discipline > motivation. Motivation fades. Discipline stays. #discipline",
+        "Your network is your net worth. Invest in genuine relationships. 🤝 #networking",
+        "Not every day will be productive. That's okay. Rest is part of the process. #balance",
+        "Dream big. Start small. Act now. 💡 #dreams #startup",
+        "The best time to start was yesterday. The second best time is now. #motivation",
+        "Embrace failure. It's not the opposite of success — it's part of it. #failure #success",
+        "Invest in yourself. It's the one investment that always pays off. 📊 #investing",
 
         // Random & Short
         "bruh",
         "same 😭",
         "this >>> ",
-        "no thoughts just vibes ✨",
+        "no thoughts just vibes ✨ #vibes",
         "it me",
         "respectfully, no.",
         "say less 🤝",
         "LMAOOO",
         "the way I screamed 😂",
-        "okay but why is this so true",
-        "manifesting good energy today 🫶",
-        "I'm in my healing era",
-        "rent is due and so is my mental breakdown 🙃",
-        "touch grass, be happy 🌾",
+        "okay but why is this so true #truth",
+        "manifesting good energy today 🫶 #manifest",
+        "I'm in my healing era #healingera",
+        "rent is due and so is my mental breakdown 🙃 #adultlife",
+        "touch grass, be happy 🌾 #nature",
         "down bad fr fr",
-        "new day new me (for the 47th time)",
-        "anyone else feel like time is moving weird lately?",
-        "the vibe today is ☁️",
-        "good morning to everyone except alarm clocks ⏰",
-        "just here for the memes honestly",
+        "new day new me (for the 47th time) #newme",
+        "anyone else feel like time is moving weird lately? #time",
+        "the vibe today is ☁️ #mood",
+        "good morning to everyone except alarm clocks ⏰ #goodmorning",
+        "just here for the memes honestly #memes",
 
         // Questions & Engagement
-        "What's a skill you wish you'd learned earlier in life? 🤔",
-        "Drop your favorite song right now. I need new music! 🎧",
-        "If you could live anywhere in the world, where would it be?",
-        "What's the best advice you've ever received?",
-        "Coffee or tea? Choose wisely ☕🍵",
-        "What's your most controversial food opinion? 🍕",
-        "If you could have dinner with anyone, dead or alive, who would it be?",
-        "What book changed your life? 📖",
-        "What's one thing you're proud of this week?",
-        "Recommend me a movie for tonight! 🎥",
-        "What are you currently learning? Share your journey! ✏️",
-        "Do you believe in work-life balance or work-life integration?",
-        "What's a hobby you picked up recently?",
-        "If today was your last day, what would you do?",
-        "What's the most underrated app on your phone?",
+        "What's a skill you wish you'd learned earlier in life? 🤔 #learning",
+        "Drop your favorite song right now. I need new music! 🎧 #musicrecommendation",
+        "If you could live anywhere in the world, where would it be? #travel",
+        "What's the best advice you've ever received? #advice",
+        "Coffee or tea? Choose wisely ☕🍵 #coffeeortea",
+        "What's your most controversial food opinion? 🍕 #fooddebate",
+        "If you could have dinner with anyone, dead or alive, who would it be? #dinner",
+        "What book changed your life? 📖 #bookrecommendation",
+        "What's one thing you're proud of this week? #proudmoment",
+        "Recommend me a movie for tonight! 🎥 #movienight",
+        "What are you currently learning? Share your journey! ✏️ #learninginpublic",
+        "Do you believe in work-life balance or work-life integration? #worklife",
+        "What's a hobby you picked up recently? #hobbies",
+        "If today was your last day, what would you do? #YOLO",
+        "What's the most underrated app on your phone? #apps",
 
         // Food
-        "Just made homemade pasta for the first time and I'm never buying store-bought again 🍝",
-        "Hot take: pineapple absolutely belongs on pizza. Sorry not sorry 🍍🍕",
-        "Found a new ramen place downtown and it's officially my new personality trait 🍜",
-        "Meal prepping Sundays >>> scrambling at midnight on Tuesday",
-        "The Japanese convenience store snacks I ordered finally arrived and I'm in heaven 🇯🇵🍙",
-        "Tried making sourdough again. My starter is more alive than I am.",
-        "Nothing heals the soul quite like grandma's cooking 🥘",
-        "If you don't season your food, we can't be friends. Non-negotiable. 🧂",
-        "Ice cream for dinner because I'm an adult and no one can stop me 🍦",
-        "Just learned that breakfast for dinner is called 'brinner' and I've never felt more seen.",
+        "Just made homemade pasta for the first time and I'm never buying store-bought again 🍝 #pasta #homemade",
+        "Hot take: pineapple absolutely belongs on pizza. Sorry not sorry 🍍🍕 #pineapplepizza",
+        "Found a new ramen place downtown and it's officially my new personality trait 🍜 #ramen #foodie",
+        "Meal prepping Sundays >>> scrambling at midnight on Tuesday #mealprep",
+        "The Japanese convenience store snacks I ordered finally arrived and I'm in heaven 🇯🇵🍙 #japanesefood",
+        "Tried making sourdough again. My starter is more alive than I am. #sourdough #baking",
+        "Nothing heals the soul quite like grandma's cooking 🥘 #comfort food #family",
+        "If you don't season your food, we can't be friends. Non-negotiable. 🧂 #cooking",
+        "Ice cream for dinner because I'm an adult and no one can stop me 🍦 #icecream",
+        "Just learned that breakfast for dinner is called 'brinner' and I've never felt more seen. #brinner",
         
         // Travel
-        "Just booked a one-way ticket. Sometimes you just need to go. ✈️",
-        "Travel tip: always pack a portable charger. Trust me. 🔌",
-        "Getting lost in a new city is the best way to find hidden gems. 🗺️",
-        "The world is too beautiful to spend your whole life in one place.",
-        "Sunsets look different when you're in a completely different timezone 🌇",
-        "Airport coffee hits different when you're about to explore somewhere new ☕✈️",
-        "Traveling solo taught me more about myself than any self-help book ever could.",
-        "My passport is my most prized possession at this point. 🛂",
-        "Note to self: learn basic phrases before traveling. 'Excuse me' is universal.",
-        "Bus rides through the countryside > first class flights. The views alone. 🌄",
+        "Just booked a one-way ticket. Sometimes you just need to go. ✈️ #travel #wanderlust",
+        "Travel tip: always pack a portable charger. Trust me. 🔌 #traveltips",
+        "Getting lost in a new city is the best way to find hidden gems. 🗺️ #exploring",
+        "The world is too beautiful to spend your whole life in one place. #travel #adventure",
+        "Sunsets look different when you're in a completely different timezone 🌇 #sunsetlover",
+        "Airport coffee hits different when you're about to explore somewhere new ☕✈️ #airportlife",
+        "Traveling solo taught me more about myself than any self-help book ever could. #solotravel",
+        "My passport is my most prized possession at this point. 🛂 #passport #travel",
+        "Note to self: learn basic phrases before traveling. 'Excuse me' is universal. #travelhack",
+        "Bus rides through the countryside > first class flights. The views alone. 🌄 #countryside",
     ];
 
     /**
      * Reply templates that feel like genuine responses.
      */
     private array $replyTemplates = [
-        "Totally agree with this! 🙌",
+        "Totally agree with this! 🙌 #facts",
         "Couldn't have said it better myself",
-        "This is so relatable 😂",
+        "This is so relatable 😂 #relatable",
         "Wait, really? Tell me more!",
-        "I needed to hear this today. Thank you 🙏",
-        "Facts. Absolute facts.",
+        "I needed to hear this today. Thank you 🙏 #grateful",
+        "Facts. Absolute facts. #truth",
         "Okay but you're so right about this",
         "Hard disagree actually, but I respect your take",
         "This hit home 💯",
-        "Adding this to my list of things to remember",
+        "Adding this to my list of things to remember #noted",
         "The way this made me laugh out loud 😭",
-        "Can confirm, been there done that",
+        "Can confirm, been there done that #beenthere",
         "Why does this have so few likes? Underrated tweet",
-        "This is the energy I need today ✨",
-        "Saving this for later because it's too good",
+        "This is the energy I need today ✨ #vibes",
+        "Saving this for later because it's too good #saved",
         "You always post the best stuff 🔥",
         "I screenshot this and sent it to everyone I know",
         "Drop the link/recipe/source! 👀",
         "Someone needed to say this. Thank you.",
-        "This deserves to go viral honestly",
-        "Me every single day 😩",
-        "I feel seen",
-        "Not me reading this at 3am 👁️👁️",
-        "spitting facts as always 💅",
+        "This deserves to go viral honestly #viral",
+        "Me every single day 😩 #mood",
+        "I feel seen #relatable",
+        "Not me reading this at 3am 👁️👁️ #insomnia",
+        "spitting facts as always 💅 #fax",
         "the accuracy is concerning 😭😂",
-        "okay THIS is the tweet of the day",
+        "okay THIS is the tweet of the day #tweetoftheday",
         "your tweets never miss fr",
         "I just showed this to my friend and they gasped",
-        "based take 🗣️",
-        "W take 🏆",
+        "based take 🗣️ #based",
+        "W take 🏆 #winning",
     ];
 
     public function run(): void
@@ -394,6 +397,41 @@ class MassDataSeeder extends Seeder
         // Refresh tweet IDs after replies
         $tweetIds = Tweet::where('tweet_type', 'tweet')->pluck('id')->toArray();
         $totalTweets = count($tweetIds);
+
+        // ─── 3.5. SEED HASHTAGS TABLE ──────────────────────────────────
+        $this->command->info('#️⃣  Extracting and seeding hashtags...');
+        
+        // Collect all hashtags from tweet content
+        $hashtagCounts = [];
+        $allTweets = Tweet::select('content')->whereNotNull('content')->cursor();
+        
+        foreach ($allTweets as $tweet) {
+            preg_match_all('/#([\w\x{0080}-\x{FFFF}]+)/u', $tweet->content ?? '', $matches);
+            foreach ($matches[1] as $tag) {
+                $tagLower = strtolower($tag);
+                $hashtagCounts[$tagLower] = ($hashtagCounts[$tagLower] ?? 0) + 1;
+            }
+        }
+
+        // Insert unique hashtags with their counts
+        $hashtagData = [];
+        foreach ($hashtagCounts as $name => $count) {
+            $hashtagData[] = [
+                'name' => $name,
+                'tweets_count' => $count,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }
+
+        if (!empty($hashtagData)) {
+            // Insert in chunks
+            foreach (array_chunk($hashtagData, 50) as $chunk) {
+                DB::table('hashtags')->insert($chunk);
+            }
+        }
+
+        $this->command->info('✅ Seeded ' . count($hashtagCounts) . ' unique hashtags');
 
         // ─── 4. CREATE FOLLOWS (~20-50 follows per user) ───────────────
         $this->command->info('🤝 Creating follow relationships...');
@@ -664,6 +702,7 @@ class MassDataSeeder extends Seeder
         $finalLikes = DB::table('likes')->count();
         $finalRetweets = DB::table('retweets')->count();
         $finalBookmarks = DB::table('bookmarks')->count();
+        $finalHashtags = DB::table('hashtags')->count();
 
         $this->command->info('╔══════════════════════════════════════╗');
         $this->command->info('║     🎉 SEEDING COMPLETE!            ║');
@@ -674,6 +713,7 @@ class MassDataSeeder extends Seeder
         $this->command->info("║  ❤️  Likes:     $finalLikes");
         $this->command->info("║  🔁 Retweets:  $finalRetweets");
         $this->command->info("║  🔖 Bookmarks: $finalBookmarks");
+        $this->command->info("║  #️⃣  Hashtags:  $finalHashtags");
         $this->command->info('╚══════════════════════════════════════╝');
         $this->command->newLine();
         $this->command->info('📌 All dummy accounts use password: "password"');

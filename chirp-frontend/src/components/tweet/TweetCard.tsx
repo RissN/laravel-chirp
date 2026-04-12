@@ -1,17 +1,84 @@
 import React, { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
-import { Heart, MessageCircle, Repeat2, Bookmark, Share, Trash2, MoreHorizontal, AlertTriangle } from 'lucide-react';
+import { Heart, MessageCircle, Repeat2, Bookmark, Share, Trash2, MoreHorizontal, AlertTriangle, Pencil, FileText } from 'lucide-react';
 import ReportModal from './ReportModal';
 import { motion, AnimatePresence } from 'framer-motion';
 import { formatDistanceToNowStrict } from 'date-fns';
 import Avatar from '../ui/Avatar';
 import type { Tweet } from '../../types';
-import { toggleLike, toggleRetweet, toggleBookmark, deleteTweet } from '../../api/tweets';
+import { toggleLike, toggleRetweet, toggleBookmark, deleteTweet, updateTweet } from '../../api/tweets';
 import { useAuthStore } from '../../store/authStore';
 import { useModal } from '../ui/ModalProvider';
 import { useToast } from '../ui/ToastProvider';
 
+/**
+ * Mem-parse konten teks tweet dan mengubah #hashtag menjadi link yang dapat diklik.
+ * Saat hashtag diklik, user diarahkan ke halaman Explore dengan filter hashtag tersebut.
+ *
+ * @param content - Teks konten tweet yang akan di-parse
+ * @param navigate - Fungsi navigasi dari react-router-dom
+ * @returns Array elemen React (span biasa untuk teks, span berwarna untuk hashtag)
+ */
+function renderContentWithHashtags(content: string, navigate: (path: string) => void) {
+  if (!content) return null;
+  const parts = content.split(/(#[\w\u0080-\uffff]+)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith('#')) {
+      return (
+        <span
+          key={i}
+          className="text-[var(--color-chirp)] hover:underline cursor-pointer"
+          onClick={(e) => { e.stopPropagation(); navigate(`/explore?q=${encodeURIComponent(part)}`); }}
+        >
+          {part}
+        </span>
+      );
+    }
+    return <span key={i}>{part}</span>;
+  });
+}
+
+/**
+ * Mendeteksi apakah suatu URL merujuk ke file dokumen (bukan gambar/video).
+ * Digunakan untuk memisahkan tampilan media gambar dari lampiran file.
+ *
+ * @param url - URL media yang akan dicek
+ * @returns true jika URL berekstensi file dokumen (pdf, doc, zip, dll)
+ */
+function isFileUrl(url: string): boolean {
+  const ext = url.split('.').pop()?.toLowerCase() || '';
+  return ['pdf', 'doc', 'docx', 'zip', 'txt', 'xls', 'xlsx', 'ppt', 'pptx'].includes(ext);
+}
+
+/**
+ * Mengekstrak nama file dari URL lengkap.
+ * Mengambil segmen terakhir setelah '/' dan melakukan decode URI.
+ *
+ * @param url - URL lengkap file
+ * @returns Nama file yang sudah di-decode, atau 'file' jika gagal
+ */
+function getFileName(url: string): string {
+  try {
+    return decodeURIComponent(url.split('/').pop() || 'file');
+  } catch {
+    return 'file';
+  }
+}
+
+/**
+ * Komponen TweetCard - Menampilkan satu tweet dalam format kartu.
+ *
+ * Fitur utama:
+ * - Menampilkan konten tweet dengan hashtag yang bisa diklik
+ * - Menampilkan media (gambar dan file lampiran)
+ * - Tombol interaksi: Like, Retweet, Reply, Bookmark, Share
+ * - Menu dropdown: Edit Tweet (untuk pemilik), Delete Tweet (untuk pemilik), Report (untuk user lain)
+ * - Optimistic UI update untuk Like, Retweet, dan Bookmark
+ * - Modal Edit inline dengan validasi karakter (maks 250)
+ *
+ * @param tweet - Objek data tweet yang akan ditampilkan
+ */
 export default function TweetCard({ tweet }: { tweet: Tweet }) {
   const navigate = useNavigate();
   
@@ -28,6 +95,9 @@ export default function TweetCard({ tweet }: { tweet: Tweet }) {
   const { showToast } = useToast();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editContent, setEditContent] = useState(tweet.content || '');
+  const [editLoading, setEditLoading] = useState(false);
 
   const isOwner = currentUser?.id === tweet.user.id;
 
@@ -64,6 +134,30 @@ export default function TweetCard({ tweet }: { tweet: Tweet }) {
     if (isConfirmed) {
       deleteMutation.mutate();
     }
+  };
+
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsMenuOpen(false);
+    setEditContent(displayTweet.content || '');
+    setIsEditing(true);
+  };
+
+  const handleEditSubmit = async () => {
+    if (!editContent.trim() || editContent.length > 250) return;
+    setEditLoading(true);
+    try {
+      await updateTweet(displayTweet.id, { content: editContent.trim(), media: displayTweet.media });
+      queryClient.invalidateQueries({ queryKey: ['timeline'] });
+      queryClient.invalidateQueries({ queryKey: ['profile-tweets'] });
+      queryClient.invalidateQueries({ queryKey: ['explore'] });
+      queryClient.invalidateQueries({ queryKey: ['tweet', String(displayTweet.id)] });
+      showToast('Tweet updated successfully', 'success');
+      setIsEditing(false);
+    } catch {
+      showToast('Failed to update tweet', 'error');
+    }
+    setEditLoading(false);
   };
 
   const likeMutation = useMutation({
@@ -181,12 +275,20 @@ export default function TweetCard({ tweet }: { tweet: Tweet }) {
                       className="absolute top-0 right-0 mt-8 w-48 bg-black border border-white/[0.08] rounded-xl overflow-hidden shadow-2xl z-20 backdrop-blur-2xl"
                     >
                       {isOwner ? (
-                        <button
-                          onClick={handleDelete}
-                          className="w-full text-left px-4 py-3 text-sm text-red-500 hover:bg-red-500/10 flex items-center gap-3 transition-colors font-bold"
-                        >
-                          <Trash2 size={16} /> Delete Tweet
-                        </button>
+                        <>
+                          <button
+                            onClick={handleEdit}
+                            className="w-full text-left px-4 py-3 text-sm text-[var(--text-color)] hover:bg-white/10 flex items-center gap-3 transition-colors font-medium"
+                          >
+                            <Pencil size={16} /> Edit Tweet
+                          </button>
+                          <button
+                            onClick={handleDelete}
+                            className="w-full text-left px-4 py-3 text-sm text-red-500 hover:bg-red-500/10 flex items-center gap-3 transition-colors font-bold"
+                          >
+                            <Trash2 size={16} /> Delete Tweet
+                          </button>
+                        </>
                       ) : (
                         <button
                           onClick={(e) => { e.stopPropagation(); setIsReportModalOpen(true); setIsMenuOpen(false); }}
@@ -203,26 +305,51 @@ export default function TweetCard({ tweet }: { tweet: Tweet }) {
           </div>
 
           <p className="text-[var(--text-color)] mt-0.5 text-[15px] leading-relaxed whitespace-pre-wrap" style={{ overflowWrap: 'break-word', wordBreak: 'break-word' }}>
-            {displayTweet.content}
+            {renderContentWithHashtags(displayTweet.content || '', navigate)}
           </p>
 
           {/* Media Grid */}
           {displayTweet.media && displayTweet.media.length > 0 && (
-            <div className={`mt-3 grid gap-2 rounded-2xl overflow-hidden border border-[var(--border-color)]/50 ${
-              displayTweet.media.length === 1 ? 'grid-cols-1' : 'grid-cols-2'
-            }`}>
-              {displayTweet.media.map((url, i) => (
-                <img 
-                  key={i} 
-                  src={url} 
-                  alt="Tweet media" 
-                  className={`w-full object-cover hover:opacity-95 transition-opacity cursor-zoom-in ${
-                    displayTweet.media?.length === 3 && i === 0 ? 'row-span-2 h-full' : 'h-64 sm:h-72'
-                  }`}
-                  onClick={(e) => e.stopPropagation()} 
-                />
-              ))}
-            </div>
+            <>
+              {/* Image Media Grid */}
+              {displayTweet.media.filter((url: string) => !isFileUrl(url)).length > 0 && (
+                <div className={`mt-3 grid gap-2 rounded-2xl overflow-hidden border border-[var(--border-color)]/50 ${
+                  displayTweet.media.filter((url: string) => !isFileUrl(url)).length === 1 ? 'grid-cols-1' : 'grid-cols-2'
+                }`}>
+                  {displayTweet.media.filter((url: string) => !isFileUrl(url)).map((url: string, i: number) => (
+                    <img 
+                      key={i} 
+                      src={url} 
+                      alt="Tweet media" 
+                      className={`w-full object-cover hover:opacity-95 transition-opacity cursor-zoom-in ${
+                        displayTweet.media!.filter((u: string) => !isFileUrl(u)).length === 3 && i === 0 ? 'row-span-2 h-full' : 'h-64 sm:h-72'
+                      }`}
+                      onClick={(e) => e.stopPropagation()} 
+                    />
+                  ))}
+                </div>
+              )}
+
+              {/* File Attachments */}
+              {displayTweet.media.filter((url: string) => isFileUrl(url)).length > 0 && (
+                <div className="mt-3 space-y-2">
+                  {displayTweet.media.filter((url: string) => isFileUrl(url)).map((url: string, i: number) => (
+                    <a
+                      key={i}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="flex items-center gap-3 p-3 rounded-xl bg-[var(--hover-bg)] border border-[var(--border-color)]/20 hover:border-[var(--color-chirp)]/40 transition-all"
+                    >
+                      <FileText size={20} className="text-[var(--color-chirp)] shrink-0" />
+                      <span className="text-[var(--text-color)] text-sm font-medium truncate">{getFileName(url)}</span>
+                      <span className="text-[var(--text-muted)] text-xs ml-auto shrink-0">Download</span>
+                    </a>
+                  ))}
+                </div>
+              )}
+            </>
           )}
 
           {/* Action Buttons */}
@@ -282,6 +409,49 @@ export default function TweetCard({ tweet }: { tweet: Tweet }) {
          reportableId={displayTweet.id}
          reportableType="tweet"
       />
+
+      {/* Edit Modal */}
+      <AnimatePresence>
+        {isEditing && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={(e) => { e.stopPropagation(); setIsEditing(false); }}>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-[var(--bg-color)] border border-[var(--border-color)]/30 rounded-2xl p-6 w-full max-w-lg shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2 className="text-[var(--text-color)] font-black text-lg mb-4">Edit Tweet</h2>
+              <textarea
+                className="w-full bg-transparent border border-[var(--border-color)]/30 rounded-xl p-4 text-[var(--text-color)] text-[15px] placeholder:text-[var(--text-muted)] focus:ring-1 focus:ring-[var(--color-chirp)] focus:border-[var(--color-chirp)] resize-none min-h-[120px] outline-none transition-all"
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+                maxLength={250}
+              />
+              <div className="flex items-center justify-between mt-3">
+                <span className={`text-xs font-bold ${editContent.length > 250 ? 'text-red-500' : editContent.length >= 230 ? 'text-yellow-500' : 'text-[var(--text-muted)]'}`}>
+                  {250 - editContent.length} characters remaining
+                </span>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setIsEditing(false)}
+                    className="px-4 py-2 rounded-full text-[var(--text-muted)] hover:bg-[var(--hover-bg)] text-sm font-bold transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleEditSubmit}
+                    disabled={editLoading || !editContent.trim() || editContent.length > 250}
+                    className="px-5 py-2 rounded-full bg-[var(--color-chirp)] text-white text-sm font-bold hover:opacity-90 transition-all disabled:opacity-50"
+                  >
+                    {editLoading ? 'Saving...' : 'Save'}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </article>
   );
 }

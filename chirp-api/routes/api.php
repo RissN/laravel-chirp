@@ -31,6 +31,7 @@ Route::middleware(['auth:sanctum', 'throttle:300,1'])->group(function () {
     Route::get('/tweets/explore', [TweetController::class, 'explore']); // Explore
     Route::post('/tweets', [TweetController::class, 'store']); // Create
     Route::get('/tweets/{tweet}', [TweetController::class, 'show']); // Detail
+    Route::put('/tweets/{tweet}', [TweetController::class, 'update']); // Update
     Route::delete('/tweets/{tweet}', [TweetController::class, 'destroy']); // Delete
 
     // Tweet Actions

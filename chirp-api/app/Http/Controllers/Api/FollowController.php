@@ -8,8 +8,27 @@ use App\Models\Follow;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 
+/**
+ * Class FollowController
+ *
+ * Menangani sistem follow/unfollow antar pengguna.
+ * Mendukung akun privat (follow request pending) dan mengirim
+ * notifikasi real-time melalui WebSocket saat user baru di-follow.
+ */
 class FollowController extends Controller
 {
+    /**
+     * Toggle follow/unfollow pengguna.
+     *
+     * Jika sudah follow → unfollow (hapus relasi + kurangi counter).
+     * Jika belum follow → follow (buat relasi baru + tambah counter).
+     * Untuk akun privat, status follow menjadi 'pending' sampai disetujui.
+     * Mengirim notifikasi real-time ke user yang di-follow.
+     *
+     * @param  Request  $request   Request dengan user yang terautentikasi
+     * @param  string   $username  Username target yang ingin di-follow/unfollow
+     * @return \Illuminate\Http\JsonResponse  Response JSON berisi status follow terbaru
+     */
     public function toggleFollow(Request $request, $username)
     {
         $targetUser = User::where('username', $username)->firstOrFail();
@@ -64,6 +83,14 @@ class FollowController extends Controller
         ]);
     }
 
+    /**
+     * Menampilkan daftar followers dari user tertentu.
+     *
+     * Hanya menampilkan followers yang statusnya 'accepted'.
+     *
+     * @param  string  $username  Username pengguna
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     */
     public function followers($username)
     {
         $user = User::where('username', $username)->firstOrFail();
@@ -75,6 +102,14 @@ class FollowController extends Controller
         ]);
     }
 
+    /**
+     * Menampilkan daftar user yang di-follow oleh user tertentu.
+     *
+     * Hanya menampilkan following yang statusnya 'accepted'.
+     *
+     * @param  string  $username  Username pengguna
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     */
     public function following($username)
     {
         $user = User::where('username', $username)->firstOrFail();

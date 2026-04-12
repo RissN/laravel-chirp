@@ -10,8 +10,25 @@ use App\Http\Resources\ConversationResource;
 use App\Http\Resources\MessageResource;
 use Illuminate\Http\Request;
 
+/**
+ * Class ConversationController
+ *
+ * Menangani sistem Direct Message (DM) antar pengguna.
+ * Fitur meliputi: melihat daftar percakapan, membaca pesan dalam percakapan,
+ * mengirim pesan baru (dengan dukungan media), dan menandai pesan sebagai sudah dibaca.
+ * Semua pesan dikirim secara real-time melalui WebSocket (Laravel Reverb).
+ */
 class ConversationController extends Controller
 {
+    /**
+     * Mengambil daftar semua percakapan user yang sedang login.
+     *
+     * Mengembalikan percakapan beserta data kedua partisipan dan
+     * pesan terakhir, diurutkan berdasarkan aktivitas terbaru.
+     *
+     * @param  Request  $request  Request dengan user yang terautentikasi
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     */
     public function index(Request $request)
     {
         $user = $request->user();
@@ -27,6 +44,16 @@ class ConversationController extends Controller
         ]);
     }
 
+    /**
+     * Mengambil daftar pesan dalam satu percakapan.
+     *
+     * Memverifikasi bahwa user yang login adalah partisipan percakapan.
+     * Mengembalikan pesan beserta data pengirim, diurutkan terbaru terlebih dahulu.
+     *
+     * @param  Request       $request       Request dengan user yang terautentikasi
+     * @param  Conversation  $conversation  Instance percakapan dari route model binding
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection|\Illuminate\Http\JsonResponse
+     */
     public function messages(Request $request, Conversation $conversation)
     {
         $user = $request->user();
@@ -53,6 +80,16 @@ class ConversationController extends Controller
         ]);
     }
 
+    /**
+     * Mengirim pesan baru ke pengguna lain.
+     *
+     * Membuat percakapan baru jika belum ada, lalu menyimpan pesan
+     * dan men-trigger event NewMessage untuk pengiriman real-time via WebSocket.
+     *
+     * @param  Request  $request  Request berisi content dan opsional media
+     * @param  int      $userId   ID user penerima pesan
+     * @return \Illuminate\Http\JsonResponse  Response JSON berisi data pesan yang dikirim
+     */
     public function send(Request $request, $userId)
     {
         $request->validate([
@@ -99,6 +136,16 @@ class ConversationController extends Controller
         ]);
     }
 
+    /**
+     * Menandai semua pesan dalam percakapan sebagai sudah dibaca.
+     *
+     * Mengupdate field read_at pada pesan-pesan yang diterima oleh user
+     * yang sedang login dan belum ditandai sebagai dibaca.
+     *
+     * @param  Request       $request       Request dengan user yang terautentikasi
+     * @param  Conversation  $conversation  Instance percakapan dari route model binding
+     * @return \Illuminate\Http\JsonResponse  Response JSON konfirmasi
+     */
     public function read(Request $request, Conversation $conversation)
     {
         $user = $request->user();

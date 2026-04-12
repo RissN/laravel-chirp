@@ -11,8 +11,26 @@ use App\Models\Retweet;
 use App\Models\Bookmark;
 use Illuminate\Http\Request;
 
+/**
+ * Class TweetActionController
+ *
+ * Menangani aksi interaksi pada tweet: like/unlike, retweet/unretweet,
+ * bookmark/unbookmark, reply (komentar), dan quote tweet.
+ * Semua aksi menggunakan pola toggle (jika sudah aktif maka nonaktifkan, dan sebaliknya).
+ * Mengirim notifikasi real-time melalui WebSocket untuk setiap interaksi.
+ */
 class TweetActionController extends Controller
 {
+    /**
+     * Toggle like/unlike pada tweet.
+     *
+     * Jika tweet sudah di-like oleh user, maka unlike (hapus like + kurangi counter).
+     * Jika belum, maka like (buat record + tambah counter + kirim notifikasi).
+     *
+     * @param  Request  $request  Request dengan user terautentikasi
+     * @param  Tweet    $tweet    Instance tweet dari route model binding
+     * @return \Illuminate\Http\JsonResponse  Status like dan jumlah like terbaru
+     */
     public function like(Request $request, Tweet $tweet)
     {
         $user = $request->user();
@@ -50,6 +68,16 @@ class TweetActionController extends Controller
         ]);
     }
 
+    /**
+     * Toggle retweet/unretweet pada tweet.
+     *
+     * Retweet membuat record baru di tabel tweets dengan tweet_type='retweet'
+     * dan menambah counter. Unretweet menghapus record tersebut.
+     *
+     * @param  Request  $request  Request dengan user terautentikasi
+     * @param  Tweet    $tweet    Instance tweet dari route model binding
+     * @return \Illuminate\Http\JsonResponse  Status retweet dan jumlah retweet terbaru
+     */
     public function retweet(Request $request, Tweet $tweet)
     {
         $user = $request->user();
@@ -96,6 +124,16 @@ class TweetActionController extends Controller
         ]);
     }
 
+    /**
+     * Toggle bookmark/unbookmark pada tweet.
+     *
+     * Bookmark menyimpan tweet ke daftar simpan pribadi user.
+     * Unbookmark menghapusnya dari daftar tersebut.
+     *
+     * @param  Request  $request  Request dengan user terautentikasi
+     * @param  Tweet    $tweet    Instance tweet dari route model binding
+     * @return \Illuminate\Http\JsonResponse  Status bookmark dan jumlah bookmark terbaru
+     */
     public function bookmark(Request $request, Tweet $tweet)
     {
         $user = $request->user();
@@ -121,6 +159,15 @@ class TweetActionController extends Controller
         ]);
     }
 
+    /**
+     * Mengambil daftar reply/komentar dari suatu tweet.
+     *
+     * Mengembalikan tweet bertipe 'reply' yang memiliki parent_id
+     * sesuai tweet yang diminta, diurutkan dari yang terbaru.
+     *
+     * @param  Tweet  $tweet  Instance tweet induk dari route model binding
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     */
     public function replies(Tweet $tweet)
     {
         $replies = Tweet::with(['user'])
@@ -135,6 +182,17 @@ class TweetActionController extends Controller
         ]);
     }
 
+    /**
+     * Membuat reply/komentar baru pada tweet.
+     *
+     * Memvalidasi konten (maks 250 karakter), mengecek status suspended user,
+     * membuat record tweet bertipe 'reply', menambah counter replies pada
+     * tweet induk, dan mengirim notifikasi ke pemilik tweet.
+     *
+     * @param  StoreTweetRequest  $request  Data reply yang divalidasi
+     * @param  Tweet              $tweet    Tweet induk yang dibalas
+     * @return \Illuminate\Http\JsonResponse  Data reply yang baru dibuat (HTTP 201)
+     */
     public function reply(StoreTweetRequest $request, Tweet $tweet)
     {
         $user = $request->user();
@@ -181,6 +239,16 @@ class TweetActionController extends Controller
         ], 201);
     }
 
+    /**
+     * Membuat quote tweet (retweet dengan komentar).
+     *
+     * Mirip dengan reply, tetapi membuat tweet independen bertipe 'quote'
+     * yang mereferensi tweet asli melalui parent_id.
+     *
+     * @param  StoreTweetRequest  $request  Data quote yang divalidasi
+     * @param  Tweet              $tweet    Tweet yang di-quote
+     * @return \Illuminate\Http\JsonResponse  Data quote tweet yang dibuat (HTTP 201)
+     */
     public function quote(StoreTweetRequest $request, Tweet $tweet)
     {
         $user = $request->user();

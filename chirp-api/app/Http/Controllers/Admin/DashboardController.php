@@ -7,8 +7,28 @@ use App\Models\User;
 use App\Models\Tweet;
 use Illuminate\Http\Request;
 
+/**
+ * Class DashboardController
+ *
+ * Menyediakan data statistik dan analitik untuk halaman dashboard admin.
+ * Termasuk jumlah user, tweet, laporan, pertumbuhan mingguan,
+ * grafik aktivitas user per jam, dan daftar pendaftaran terbaru.
+ */
 class DashboardController extends Controller
 {
+    /**
+     * Mengambil seluruh statistik platform untuk dashboard admin.
+     *
+     * Data yang dikembalikan:
+     * - Stats: total users, active, banned, total tweets, reports
+     * - Chart: data grafik aktivitas user per jam (24 jam)
+     *   menggunakan seed deterministik berdasarkan tanggal hari ini
+     *   agar konsisten untuk semua admin sepanjang hari.
+     * - Recent Users: 5 pendaftaran user terbaru
+     *
+     * @param  Request  $request  Request dari admin yang terautentikasi
+     * @return \Illuminate\Http\JsonResponse  Response JSON berisi stats, chart_data, recent_users
+     */
     public function stats(Request $request)
     {
         $totalUsers = User::count();

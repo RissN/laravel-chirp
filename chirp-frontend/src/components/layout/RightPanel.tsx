@@ -122,14 +122,14 @@ export default function RightPanel() {
               <div 
                 key={i} 
                 className="flex items-center gap-4 px-5 py-3 hover:bg-[var(--hover-bg)]/50 cursor-pointer transition-all duration-200 group"
-                onClick={() => navigate(`/explore?q=${encodeURIComponent(item.tag)}`)}
+                onClick={() => navigate(`/explore?q=${encodeURIComponent('#' + item.name)}`)}
               >
                 <div className="rank-badge w-6 h-6 text-[10px]">{i + 1}</div>
                 <div className="flex-1 min-w-0">
                   <p className="font-bold text-[14px] text-[var(--text-color)] group-hover:text-[var(--color-chirp)] transition-colors truncate">
-                    #{item.tag}
+                    #{item.name}
                   </p>
-                  <p className="text-[11px] text-[var(--text-muted)] mt-0.5 font-medium">{item.count} posts</p>
+                  <p className="text-[11px] text-[var(--text-muted)] mt-0.5 font-medium">{item.tweets_count} posts</p>
                 </div>
               </div>
             ))

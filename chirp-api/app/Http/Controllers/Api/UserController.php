@@ -11,8 +11,21 @@ use App\Models\Tweet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
+/**
+ * Class UserController
+ *
+ * Menangani operasi terkait profil pengguna: menampilkan profil,
+ * mengupdate data profil & pengaturan akun, menampilkan tweet/media/likes
+ * milik user tertentu, dan memberikan saran user untuk di-follow.
+ */
 class UserController extends Controller
 {
+    /**
+     * Menampilkan profil publik pengguna berdasarkan username.
+     *
+     * @param  string  $username  Username pengguna yang ingin dilihat
+     * @return \Illuminate\Http\JsonResponse  Response JSON berisi data UserResource
+     */
     public function show($username)
     {
         $user = User::where('username', $username)->firstOrFail();
@@ -23,6 +36,15 @@ class UserController extends Controller
         ]);
     }
 
+    /**
+     * Mengupdate data profil pengguna yang sedang login.
+     *
+     * Memperbarui field seperti name, bio, avatar, header_image, location,
+     * website, dan birth_date sesuai data yang divalidasi.
+     *
+     * @param  UpdateProfileRequest  $request  Data profil yang divalidasi
+     * @return \Illuminate\Http\JsonResponse  Response JSON berisi data profil yang diperbarui
+     */
     public function update(UpdateProfileRequest $request)
     {
         $user = $request->user();
@@ -35,6 +57,15 @@ class UserController extends Controller
         ]);
     }
 
+    /**
+     * Mengupdate pengaturan akun (email dan password).
+     *
+     * Untuk mengubah password, user harus menyertakan current_password.
+     * Password baru minimal 8 karakter dan harus dikonfirmasi.
+     *
+     * @param  Request  $request  Data pengaturan (email, current_password, new_password)
+     * @return \Illuminate\Http\JsonResponse  Response JSON konfirmasi atau error validasi
+     */
     public function updateSettings(Request $request)
     {
         $user = $request->user();
@@ -64,6 +95,15 @@ class UserController extends Controller
         ]);
     }
 
+    /**
+     * Menampilkan daftar tweet milik user berdasarkan username.
+     *
+     * Mengembalikan tweet, retweet, dan quote yang dibuat oleh user,
+     * diurutkan dari yang terbaru dengan pagination.
+     *
+     * @param  string  $username  Username pengguna
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     */
     public function tweets($username)
     {
         $user = User::where('username', $username)->firstOrFail();
@@ -79,6 +119,12 @@ class UserController extends Controller
         ]);
     }
 
+    /**
+     * Menampilkan tweet yang memiliki lampiran media dari user tertentu.
+     *
+     * @param  string  $username  Username pengguna
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     */
     public function media($username)
     {
         $user = User::where('username', $username)->firstOrFail();
@@ -94,6 +140,15 @@ class UserController extends Controller
         ]);
     }
 
+    /**
+     * Menampilkan tweet yang di-like oleh user tertentu.
+     *
+     * Menggunakan relasi hasMany melalui tabel likes untuk mengambil
+     * tweet yang pernah di-like oleh user yang bersangkutan.
+     *
+     * @param  string  $username  Username pengguna
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     */
     public function likes($username)
     {
         $user = User::where('username', $username)->firstOrFail();
@@ -111,6 +166,15 @@ class UserController extends Controller
         ]);
     }
 
+    /**
+     * Mendapatkan saran pengguna untuk di-follow.
+     *
+     * Mengembalikan 5 user acak yang belum di-follow oleh user
+     * yang sedang login (mengecualikan diri sendiri dan yang sudah di-follow).
+     *
+     * @param  Request  $request  Request dengan user yang terautentikasi
+     * @return \Illuminate\Http\JsonResponse  Response JSON berisi koleksi UserResource
+     */
     public function suggestions(Request $request)
     {
         $user = $request->user();
