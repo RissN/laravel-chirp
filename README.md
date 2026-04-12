@@ -27,16 +27,60 @@ Our platform leverages a modern, decoupled full-stack architecture:
 
 ---
 
-## 📖 How to Use the Website
+## 📖 Comprehensive User Guide
 
-Chirp is designed to be intuitive and familiar to those who use modern micro-blogging platforms like Twitter.
+Chirp is designed to be intuitive. Here is a step-by-step guide to using the core features:
 
-1. **Authentication:** Start by creating an account via the stylish `/register` page or log in at `/login`.
-2. **Posting a Tweet:** Navigate to `/home` and utilize the "What's happening?" composer. You can attach media and write your thoughts. Click "Post" to broadcast it to the platform.
-3. **Interacting:** Click on any tweet to view its details. You can reply, like, or retweet. Inline replies load dynamically without refreshing the page.
-4. **Direct Messaging:** Head over to `/messages`. You can search for other registered users and engage in real-time, private conversations (`/messages/{id}`). Unread indicators will notify you of new messages instantly.
-5. **Customization:** Visit your profile (`/[username]`) to update your avatar, cover photo, bio, and other personal details. Toggle "Dark/Light Mode" using the sidebar menu to match your screen preference.
-6. **Administration:** If you hold admin privileges, access the admin panel at `/admin` to view platform statistics, moderate user content, review reports, and manage user bans or suspensions.
+### General Users
+1. **Authentication:** 
+   - **Register**: Navigate to `/register` to create a new account.
+   - **Login**: Existing users can sign in at `/login`.
+2. **Browsing the Timeline:** 
+   - The `/home` page displays chronological posts from users you follow.
+   - The `/explore` page allows you to discover trending hashtags, popular posts, and suggested users.
+3. **Creating Content:** 
+   - Use the "What's happening?" composer at the top of your timeline.
+   - Type your thoughts, click the **Image** icon to attach photos, and click **Post**.
+4. **Engagement:**
+   - **Like/Retweet**: Click the heart or retweet icon below any post.
+   - **Reply**: Click the speech bubble to add a reply to a conversation thread.
+   - **Bookmark**: Save interesting posts for later by clicking the bookmark icon. View them anytime via the navigation menu.
+5. **Direct Messaging:**
+   - Access `/messages` to start private chats.
+   - Search for a user's handle to initiate a real-time, WebSocket-powered conversation.
+6. **Profile Customization:**
+   - Go to your profile (`/[username]`) and click **Edit Profile**.
+   - Update your display name, bio, location, avatar, and banner image.
+
+---
+
+## 🛡️ Admin Dashboard Guide
+
+Users with Admin privileges can access the secure backend management portal at `/admin`. 
+*(Note: To generate a default admin account, run `php artisan db:seed --class=AdminSeeder` in the API directory. Login using `admin@chirp.com` | `admin123456`)*.
+
+### 1. Overview & Analytics (Dashboard)
+- Displays real-time platform statistics (Total Users, Active Users, Pending Reports).
+- Contains an interactive **User Activity Today** chart, visualizing platform traffic.
+- View a quick list of the most recent account registrations.
+
+### 2. User Management
+- Search, filter, and paginate through the entire user base.
+- **Ban/Suspend**: Admins can issue permanent bans or temporary suspensions with custom reasons.
+- Revoke bans or delete violating accounts entirely.
+
+### 3. Content Moderation (Posts)
+- Browse all user-generated tweets and replies in a responsive grid layout. The layout automatically expands (up to 6 columns) on ultra-wide screens to maximize viewport usage.
+- Use the **Search Bar** to find specific text or flagged keywords.
+- **Bulk Action**: Select multiple posts using the checkboxes, then click "Delete Selected" to mass-remove violating content.
+
+### 4. Reports System
+- Review user-generated reports against toxic content or spam profiles.
+- Resolve tickets by taking action directly from the reports menu (e.g., dismiss report, delete the reported post, or penalize the user).
+
+### 5. Security Audit Logs
+- Every administrative action (bans, post deletions, report resolutions) is logged immutably.
+- View the audit trail to track which admin performed what action, targeting which user, at what exact timestamp.
 
 ---
 

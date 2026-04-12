@@ -143,7 +143,7 @@ export default function AdminModeration() {
         <div className="flex-1 flex items-center justify-center text-sm text-[var(--text-muted)]">No posts found</div>
       ) : (
         <div className={`flex-1 overflow-y-auto hide-scrollbar pb-6 transition-opacity ${isFetching || isBulkLoading ? 'opacity-50 pointer-events-none' : ''}`}>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 min-[1920px]:grid-cols-6 gap-3">
             {tweets.map((tweet: any) => {
               const isSelected = selectedTweets.includes(tweet.id);
               return (

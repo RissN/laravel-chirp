@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { getDashboardStats } from '../../api/admin';
 import { Users, FileText, Flag, ShieldAlert, UserCheck, TrendingUp } from 'lucide-react';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 function StatCard({ label, value, icon: Icon, color }: any) {
   return (
@@ -14,6 +15,20 @@ function StatCard({ label, value, icon: Icon, color }: any) {
       </div>
     </div>
   );
+}
+
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-[#111] border border-[var(--border-color)] p-3 rounded-lg shadow-xl">
+        <p className="text-[var(--text-muted)] text-xs mb-1">{label}</p>
+        <p className="text-purple-400 font-bold text-sm">
+          {payload[0].value} Active Users
+        </p>
+      </div>
+    );
+  }
+  return null;
 }
 
 export default function AdminDashboard() {
@@ -51,30 +66,74 @@ export default function AdminDashboard() {
             <StatCard label="Pending Reports" value={stats?.pending_reports} icon={Flag} color="bg-orange-500/20 text-orange-400" />
           </div>
 
-          {/* Recent Users */}
-          <div className="bg-transparent border border-[var(--border-color)]/30 rounded-xl p-6">
-            <h2 className="text-[var(--text-color)] font-bold mb-4">Recent Registrations</h2>
-            <div className="space-y-3">
-              {recentUsers.map((user: any) => (
-                <div key={user.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-[var(--hover-bg)] transition-all">
-                  <img
-                    src={user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`}
-                    alt={user.name}
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[var(--text-color)] font-bold text-sm truncate">{user.name}</p>
-                    <p className="text-[var(--text-muted)] text-xs">@{user.username}</p>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Chart */}
+            <div className="lg:col-span-2 bg-transparent border border-[var(--border-color)]/30 rounded-xl p-6">
+              <h2 className="text-[var(--text-color)] font-bold mb-6">User Activity Today</h2>
+              <div className="h-[300px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={data?.data?.chart_data || []}>
+                    <defs>
+                      <linearGradient id="colorActive" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#a855f7" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="#a855f7" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" opacity={0.2} vertical={false} />
+                    <XAxis 
+                      dataKey="time" 
+                      stroke="var(--text-muted)" 
+                      fontSize={12} 
+                      tickLine={false} 
+                      axisLine={false}
+                      minTickGap={20}
+                    />
+                    <YAxis 
+                      stroke="var(--text-muted)" 
+                      fontSize={12} 
+                      tickLine={false} 
+                      axisLine={false}
+                      dx={-10}
+                    />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Area 
+                      type="monotone" 
+                      dataKey="active" 
+                      stroke="#a855f7" 
+                      strokeWidth={3}
+                      fillOpacity={1} 
+                      fill="url(#colorActive)" 
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Recent Users */}
+            <div className="bg-transparent border border-[var(--border-color)]/30 rounded-xl p-6">
+              <h2 className="text-[var(--text-color)] font-bold mb-4">Recent Registrations</h2>
+              <div className="space-y-3">
+                {recentUsers.map((user: any) => (
+                  <div key={user.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-[var(--hover-bg)] transition-all">
+                    <img
+                      src={user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`}
+                      alt={user.name}
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[var(--text-color)] font-bold text-sm truncate">{user.name}</p>
+                      <p className="text-[var(--text-muted)] text-xs">@{user.username}</p>
+                    </div>
+                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                      user.status === 'active' ? 'bg-green-500/20 text-green-400' :
+                      user.status === 'banned' ? 'bg-red-500/20 text-red-400' :
+                      'bg-yellow-500/20 text-yellow-400'
+                    }`}>
+                      {user.status}
+                    </span>
                   </div>
-                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                    user.status === 'active' ? 'bg-green-500/20 text-green-400' :
-                    user.status === 'banned' ? 'bg-red-500/20 text-red-400' :
-                    'bg-yellow-500/20 text-yellow-400'
-                  }`}>
-                    {user.status}
-                  </span>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </>

@@ -21,7 +21,7 @@ class ModerationController extends Controller
             $query->where('user_id', $request->user_id);
         }
 
-        $tweets = $query->paginate(20);
+        $tweets = $query->paginate(60);
 
         return response()->json([
             'success' => true,
