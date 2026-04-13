@@ -277,13 +277,13 @@ export default function TweetCard({ tweet }: { tweet: Tweet }) {
                       initial={{ opacity: 0, y: -10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                      className="absolute top-0 right-0 mt-8 w-48 bg-black border border-white/[0.08] rounded-xl overflow-hidden shadow-2xl z-20 backdrop-blur-2xl"
+                      className="absolute top-0 right-0 mt-8 w-48 bg-[var(--elevated-bg)] border border-[var(--border-color)] rounded-xl overflow-hidden shadow-2xl z-20 backdrop-blur-2xl"
                     >
                       {isOwner ? (
                         <>
                           <button
                             onClick={handleEdit}
-                            className="w-full text-left px-4 py-3 text-sm text-[var(--text-color)] hover:bg-white/10 flex items-center gap-3 transition-colors font-medium"
+                            className="w-full text-left px-4 py-3 text-sm text-[var(--text-color)] hover:bg-[var(--hover-bg)] flex items-center gap-3 transition-colors font-medium"
                           >
                             <Pencil size={16} /> Edit Tweet
                           </button>
@@ -297,7 +297,7 @@ export default function TweetCard({ tweet }: { tweet: Tweet }) {
                       ) : (
                         <button
                           onClick={(e) => { e.stopPropagation(); setIsReportModalOpen(true); setIsMenuOpen(false); }}
-                          className="w-full text-left px-4 py-3 text-sm text-white/70 hover:bg-white/10 flex items-center gap-3 transition-colors font-medium"
+                          className="w-full text-left px-4 py-3 text-sm text-[var(--text-color)] hover:bg-[var(--hover-bg)] flex items-center gap-3 transition-colors font-medium"
                         >
                           <AlertTriangle size={16} className="text-orange-500/70" /> Report Tweet
                         </button>
