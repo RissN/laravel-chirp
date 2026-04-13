@@ -72,50 +72,22 @@ export default function Login() {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-[var(--bg-color)]">
       {/* Left Side - Branding Hero */}
-      <div className="hidden lg:flex lg:w-[55%] relative overflow-hidden items-center justify-center bg-gradient-to-br from-[#1da1f2] via-[#1a8cd8] to-[#6366f1]">
-        {/* Animated background elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 120, repeat: Infinity, ease: 'linear' }}
-            className="absolute -top-1/2 -left-1/2 w-[200%] h-[200%]"
-            style={{
-              background: 'radial-gradient(circle at 30% 40%, rgba(255,255,255,0.08) 0%, transparent 50%), radial-gradient(circle at 70% 60%, rgba(255,255,255,0.05) 0%, transparent 40%)'
-            }}
-          />
-          {/* Floating orbs */}
-          <motion.div
-            animate={{ y: [-20, 20, -20], x: [-10, 10, -10] }}
-            transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute top-[15%] right-[20%] w-32 h-32 rounded-full bg-white/[0.06] blur-xl"
-          />
-          <motion.div
-            animate={{ y: [15, -15, 15], x: [5, -5, 5] }}
-            transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute bottom-[25%] left-[15%] w-48 h-48 rounded-full bg-white/[0.04] blur-2xl"
-          />
-          <motion.div
-            animate={{ y: [10, -20, 10] }}
-            transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute top-[60%] right-[10%] w-24 h-24 rounded-full bg-white/[0.07] blur-lg"
-          />
-        </div>
-
+      <div className="hidden lg:flex lg:w-[55%] relative items-center justify-center bg-[var(--bg-color)] border-r border-[var(--border-color)]">
         {/* Content */}
-        <div className="relative z-10 max-w-lg px-12">
+        <div className="max-w-lg px-12">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: 'easeOut' }}
           >
             <div className="flex items-center gap-4 mb-10">
-              <div className="p-3 bg-white/15 backdrop-blur-sm rounded-2xl">
-                <Feather size={42} className="text-white" />
+              <div className="p-3 bg-[var(--color-chirp)]/10 rounded-2xl">
+                <Feather size={42} className="text-[var(--color-chirp)]" />
               </div>
-              <span className="text-white text-4xl font-black tracking-tight">Chirp</span>
+              <span className="text-[var(--text-color)] text-4xl font-black tracking-tight">Chirp</span>
             </div>
 
-            <h1 className="text-white text-[3.2rem] font-black leading-[1.1] tracking-tight mb-8">
+            <h1 className="text-[var(--text-color)] text-[3.2rem] font-black leading-[1.1] tracking-tight mb-8">
               Happening now
             </h1>
           </motion.div>
@@ -134,10 +106,10 @@ export default function Login() {
                 transition={{ duration: 0.5, delay: 0.4 + i * 0.1, ease: 'easeOut' }}
                 className="flex items-center gap-4 group"
               >
-                <div className="flex-shrink-0 w-11 h-11 rounded-xl bg-white/15 backdrop-blur-sm flex items-center justify-center group-hover:bg-white/25 transition-all duration-300">
-                  <feature.icon size={20} className="text-white" />
+                <div className="flex-shrink-0 w-11 h-11 rounded-xl bg-[var(--color-chirp)]/10 flex items-center justify-center group-hover:bg-[var(--color-chirp)]/20 transition-all duration-300">
+                  <feature.icon size={20} className="text-[var(--color-chirp)]" />
                 </div>
-                <p className="text-white/90 text-[15px] font-medium leading-snug">
+                <p className="text-[var(--text-muted)] text-[15px] font-medium leading-snug">
                   {feature.text}
                 </p>
               </motion.div>
@@ -149,7 +121,7 @@ export default function Login() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.7, delay: 1 }}
-            className="mt-14 flex items-center gap-2 text-white/40 text-sm"
+            className="mt-14 flex items-center gap-2 text-[var(--text-muted)] text-sm"
           >
             <Sparkles size={14} />
             <span>Join millions of people on Chirp</span>

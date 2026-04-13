@@ -87,53 +87,25 @@ export default function Register() {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-[var(--bg-color)]">
       {/* Left Side - Branding Hero */}
-      <div className="hidden lg:flex lg:w-[55%] relative overflow-hidden items-center justify-center bg-gradient-to-br from-[#6366f1] via-[#8b5cf6] to-[#1da1f2]">
-        {/* Animated background elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <motion.div
-            animate={{ rotate: -360 }}
-            transition={{ duration: 150, repeat: Infinity, ease: 'linear' }}
-            className="absolute -top-1/2 -right-1/2 w-[200%] h-[200%]"
-            style={{
-              background: 'radial-gradient(circle at 60% 30%, rgba(255,255,255,0.06) 0%, transparent 50%), radial-gradient(circle at 40% 70%, rgba(255,255,255,0.04) 0%, transparent 40%)'
-            }}
-          />
-          {/* Floating orbs */}
-          <motion.div
-            animate={{ y: [20, -20, 20], x: [10, -10, 10] }}
-            transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute top-[20%] left-[25%] w-40 h-40 rounded-full bg-white/[0.05] blur-2xl"
-          />
-          <motion.div
-            animate={{ y: [-15, 15, -15], x: [-8, 8, -8] }}
-            transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute bottom-[20%] right-[20%] w-56 h-56 rounded-full bg-white/[0.04] blur-3xl"
-          />
-          <motion.div
-            animate={{ y: [10, -25, 10] }}
-            transition={{ duration: 11, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute top-[55%] left-[10%] w-28 h-28 rounded-full bg-white/[0.06] blur-xl"
-          />
-        </div>
-
+      <div className="hidden lg:flex lg:w-[55%] relative items-center justify-center bg-[var(--bg-color)] border-r border-[var(--border-color)]">
         {/* Content */}
-        <div className="relative z-10 max-w-lg px-12">
+        <div className="max-w-lg px-12">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: 'easeOut' }}
           >
             <div className="flex items-center gap-4 mb-10">
-              <div className="p-3 bg-white/15 backdrop-blur-sm rounded-2xl">
-                <Feather size={42} className="text-white" />
+              <div className="p-3 bg-[var(--color-chirp)]/10 rounded-2xl">
+                <Feather size={42} className="text-[var(--color-chirp)]" />
               </div>
-              <span className="text-white text-4xl font-black tracking-tight">Chirp</span>
+              <span className="text-[var(--text-color)] text-4xl font-black tracking-tight">Chirp</span>
             </div>
 
-            <h1 className="text-white text-[3rem] font-black leading-[1.1] tracking-tight mb-4">
+            <h1 className="text-[var(--text-color)] text-[3rem] font-black leading-[1.1] tracking-tight mb-4">
               Join Chirp today
             </h1>
-            <p className="text-white/70 text-lg font-medium mb-10">
+            <p className="text-[var(--text-muted)] text-lg font-medium mb-10">
               Create your account and start sharing with the world.
             </p>
           </motion.div>
@@ -150,13 +122,13 @@ export default function Register() {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.4, delay: 0.4 + i * 0.1, ease: 'easeOut' }}
-                className="bg-white/[0.08] backdrop-blur-sm rounded-2xl p-4 border border-white/[0.08] hover:bg-white/[0.12] transition-all duration-300 group"
+                className="bg-[var(--hover-bg)] rounded-2xl p-4 border border-[var(--border-color)] hover:border-[var(--color-chirp)]/30 transition-all duration-300 group"
               >
-                <div className="w-9 h-9 rounded-lg bg-white/15 flex items-center justify-center mb-3 group-hover:bg-white/25 transition-colors">
-                  <item.icon size={18} className="text-white" />
+                <div className="w-9 h-9 rounded-lg bg-[var(--color-chirp)]/10 flex items-center justify-center mb-3 group-hover:bg-[var(--color-chirp)]/20 transition-colors">
+                  <item.icon size={18} className="text-[var(--color-chirp)]" />
                 </div>
-                <h3 className="text-white font-bold text-sm mb-1">{item.title}</h3>
-                <p className="text-white/60 text-xs leading-relaxed">{item.desc}</p>
+                <h3 className="text-[var(--text-color)] font-bold text-sm mb-1">{item.title}</h3>
+                <p className="text-[var(--text-muted)] text-xs leading-relaxed">{item.desc}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -166,7 +138,7 @@ export default function Register() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.7, delay: 1 }}
-            className="mt-10 flex items-center gap-2 text-white/40 text-sm"
+            className="mt-10 flex items-center gap-2 text-[var(--text-muted)] text-sm"
           >
             <Sparkles size={14} />
             <span>Your voice matters — make it heard.</span>
