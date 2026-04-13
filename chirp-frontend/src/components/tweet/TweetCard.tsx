@@ -253,6 +253,11 @@ export default function TweetCard({ tweet }: { tweet: Tweet }) {
               </Link>
               <span className="text-[var(--text-muted)] truncate text-[14px]">@{displayTweet.user.username}</span>
               <span className="text-[var(--text-muted)] text-[14px]">· {timeAgo}</span>
+              {displayTweet.updated_at && displayTweet.created_at && new Date(displayTweet.updated_at).getTime() - new Date(displayTweet.created_at).getTime() > 1000 && (
+                <span className="text-[var(--text-muted)] text-[12px] flex items-center gap-0.5 italic" title={`Edited ${formatDistanceToNowStrict(new Date(displayTweet.updated_at))} ago`}>
+                  · <Pencil size={11} /> Edited
+                </span>
+              )}
             </div>
             
             <div className="relative">
