@@ -171,6 +171,26 @@ graph TD
    npm install
    ```
 
+### 🌱 Database Seeding
+
+Aplikasi ini dilengkapi dengan beberapa seeder untuk mengisi database dengan data pengujian. **Pastikan Anda berada di dalam direktori `chirp-api`** sebelum menjalankan perintah berikut.
+
+1. **Admin Seeder**
+   Digunakan untuk membuat akun super admin agar Anda bisa mengakses portal dashboard `/admin`.
+   ```bash
+   php artisan db:seed --class=AdminSeeder
+   ```
+   *Kredensial Login:*
+   - **Email:** `admin@chirp.com`
+   - **Password:** `admin123456`
+
+2. **Mass Data Seeder**
+   Digunakan untuk menghasilkan data tiruan dalam jumlah besar yang realistis (~600 pengguna, ribuan tweet, balasan, likes, follows, dan bookmarks) untuk menguji performa dan tampilan UI.
+   ```bash
+   php artisan db:seed --class=MassDataSeeder
+   ```
+   *Catatan: Semua akun pengguna dummy yang dihasilkan akan menggunakan password: `password`.*
+
 ### Running the Application
 
 For the application to function correctly with real-time features, you must run all three of the following commands in separate terminal windows:
