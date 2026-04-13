@@ -64,6 +64,10 @@ export default function TweetComposer({ isReply = false, parentId, isModal = fal
       setFiles([]);
       setIsExpanded(false);
       queryClient.invalidateQueries({ queryKey: ['timeline'] });
+      queryClient.invalidateQueries({ queryKey: ['timeline-for-you'] });
+      if (user?.username) {
+        queryClient.invalidateQueries({ queryKey: ['profile-tweets', user.username] });
+      }
       if (isReply) {
         queryClient.invalidateQueries({ queryKey: ['replies', parentId] });
         queryClient.invalidateQueries({ queryKey: ['replies', String(parentId)] });
